@@ -30,9 +30,17 @@ int main ()
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake");
 	SetTargetFPS(FPS);
 
-	//Snake snake2 = InitSnake2();
+	Snake snake2 = InitSnake2();
+	Snake *snake2_ptr = &snake2;
 	Snake* snake = malloc(sizeof(Snake));
+	if (!snake)
+	{
+		TraceLog(LOG_ERROR, "out of memory");
+		exit(EXIT_FAILURE);
+	}
 	InitSnake(snake);
+	snake2.body->x;
+	
 
 	int grid_size = GRID_HEIGHT * GRID_WIDTH;
 	//int grid[grid_size] = [];
@@ -102,6 +110,8 @@ int main ()
 	// cleanup
 	UnloadTexture(wabbit);
 	UnloadTexture(snake_tex);
+
+	free(snake);
 
 	// destroy the window and cleanup the OpenGL context
 	CloseWindow();
