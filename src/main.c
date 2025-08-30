@@ -30,17 +30,13 @@ int main ()
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake");
 	SetTargetFPS(FPS);
 
-	Snake snake2 = InitSnake2();
-	Snake *snake2_ptr = &snake2;
 	Snake* snake = malloc(sizeof(Snake));
 	if (!snake)
 	{
-		TraceLog(LOG_ERROR, "out of memory");
+		TraceLog(LOG_ERROR, "Snake struct not allocated: out of memory");
 		exit(EXIT_FAILURE);
 	}
 	InitSnake(snake);
-	snake2.body->x;
-	
 
 	int grid_size = GRID_HEIGHT * GRID_WIDTH;
 	//int grid[grid_size] = [];
@@ -53,7 +49,7 @@ int main ()
 	SearchAndSetResourceDir("resources");
 
 	// Load a texture from the resources directory
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
+	Texture wabbit = LoadTexture("wabbit_alpha_16x16.png");
 	Texture snake_tex = LoadTexture("snake_body_16x16.png");
 	
 	float interval = 0.20f;
@@ -68,7 +64,7 @@ int main ()
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
 		dt = GetFrameTime();
-		
+		IsKeyPressed(KEY_A);
 		double current_time = GetTime();
 
 		time_accummulated += dt;
@@ -85,7 +81,10 @@ int main ()
 		ClearBackground(SKYBLUE);
 		
 		DrawTexture(wabbit, 400, 200, WHITE);
-		DrawTexture(snake_tex, 400, 300, WHITE);
+		for (int i = 0; i < snake->length; i++)
+		{
+			DrawTexture(snake_tex, TILE_SIZE * snake->body[i].x, TILE_SIZE * snake->body[i].y, WHITE);
+		}
 		for (int i = 0; i < GRID_WIDTH; i++)
 		{
 			for (int j = 0; j < GRID_HEIGHT; j++)
