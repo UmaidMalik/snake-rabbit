@@ -8,18 +8,18 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 */
 
 #include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
 #include "raylib.h"
 #include "position.h"
+#include "snake.h"
+#include "game.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
-#define GRID_WIDTH 80
-#define GRID_HEIGHT 45
-#define TILE_SIZE 16
-static int WIDTH = GRID_WIDTH * TILE_SIZE;
-static int HEIGHT = GRID_HEIGHT * TILE_SIZE; 
 
-Position calculate_pos(int idx);
-int calculate_index(Position* p);
+Position CalculatePosition(int idx);
+int CalculateIndex(Position* p);
+void Render(void);
 
 int main ()
 {
@@ -27,88 +27,103 @@ int main ()
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(WIDTH, HEIGHT, "Snake");
-	
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake");
+	SetTargetFPS(FPS);
+
+	//Snake snake2 = InitSnake2();
+	Snake* snake = malloc(sizeof(Snake));
+	InitSnake(snake);
+
 	int grid_size = GRID_HEIGHT * GRID_WIDTH;
 	//int grid[grid_size] = [];
-	Position p = calculate_pos(13);
+	Position p = CalculatePosition(13);
 	TraceLog(LOG_INFO, "x:%d, y:%d", p.x, p.y);
-	int idx = calculate_index(&p);
+	int idx = CalculateIndex(&p);
 	TraceLog(LOG_INFO, "idx:%d", idx);
-	 
-
+	
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	SearchAndSetResourceDir("resources");
 
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
-	Texture snake = LoadTexture("snake_body_16x16.png");
+	Texture snake_tex = LoadTexture("snake_body_16x16.png");
 	
+	float interval = 0.20f;
+	float speed = 10.0f;
+	float dt = 0.0f;
+	int random_idx = 0;
+	float time_accummulated = 0.0f;
 	
+	// random_idx = GetRandomValue(0, (GRID_WIDTH * GRID_HEIGHT) - 1);
 
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
+		dt = GetFrameTime();
 		
-		if (IsKeyPressed(KEY_F11))
-		{
-			ToggleBorderlessWindowed();
-			if (IsWindowFullscreen())
-			{
-				SetWindowSize(WIDTH, HEIGHT);
-			}
+		double current_time = GetTime();
+
+		time_accummulated += dt;
+
+		if (time_accummulated >= interval) {
+			
+			
+			time_accummulated = 0.0f;
 		}
 
-		// drawing
+
 		BeginDrawing();
 
-		// Setup the back buffer for drawing (clear color and depth buffers)
 		ClearBackground(SKYBLUE);
-
 		
-		
-
-		// draw our texture to the screen
 		DrawTexture(wabbit, 400, 200, WHITE);
-
-		DrawTexture(snake, 400, 300, WHITE);
+		DrawTexture(snake_tex, 400, 300, WHITE);
 		for (int i = 0; i < GRID_WIDTH; i++)
 		{
 			for (int j = 0; j < GRID_HEIGHT; j++)
 			{
 				if (i == GRID_WIDTH - 1 || i == 0 || j == GRID_HEIGHT - 1 || j == 0)
 				{
-					DrawTexture(snake, TILE_SIZE * i, j * TILE_SIZE, PURPLE);
+					DrawTexture(snake_tex, TILE_SIZE * i, j * TILE_SIZE, PURPLE);
 				}
 			}
 		}
-
-		// draw some text using the default font
-		DrawText("Hello Raylib", WIDTH / 2, 0, 50, MAGENTA);
+		DrawText("Hello Raylib", SCREEN_WIDTH / 2, 0, 50, MAGENTA);
 		
-		
-		// end the frame and get ready for the next one  (display frame, poll input, etc...)
+		Position _p = CalculatePosition(random_idx);
+		DrawTexture(snake_tex, _p.x * TILE_SIZE, _p.y * TILE_SIZE, WHITE);
+		DrawCircle(GetMouseX(), GetMouseY(), 10, RED);
 		EndDrawing();
+
+
+
 	}
 
 	// cleanup
-	// unload our texture so it can be cleaned up
 	UnloadTexture(wabbit);
+	UnloadTexture(snake_tex);
 
 	// destroy the window and cleanup the OpenGL context
 	CloseWindow();
 	return 0;
 }
 
-Position calculate_pos(int idx) {
+Position CalculatePosition(int idx)
+{
 	int px = idx % GRID_WIDTH;
 	int py = idx / GRID_WIDTH;
 	Position p = {px, py};
 	return p;
 }
 
-int calculate_index(Position* p) {
+int CalculateIndex(Position* p)
+{
 	int idx = 0;
 	idx = p->x + (GRID_WIDTH * p->y);
 	return idx;
 }
+
+void Render() {
+
+}
+
