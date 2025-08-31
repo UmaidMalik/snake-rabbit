@@ -13,13 +13,14 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "raylib.h"
 #include "position.h"
 #include "snake.h"
+#include "food.h"
 #include "game.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
-
-Position CalculatePosition(int idx);
-int CalculateIndex(Position* p);
-void Render(void);
+void AddToTextureArray(Texture tex);
+bool HasSnakeTouchFood(Snake* snake, Food* food);
+Texture texture_array[10];
+int texture_array_size = 0;
 
 int main ()
 {
@@ -27,7 +28,7 @@ int main ()
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake");
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + 32, "Snake");
 	SetTargetFPS(FPS);
 
 	Snake* snake = malloc(sizeof(Snake));
@@ -37,9 +38,12 @@ int main ()
 		exit(EXIT_FAILURE);
 	}
 	InitSnake(snake);
+	Food food;
+	InitFood(&food);
 
 	int grid_size = GRID_HEIGHT * GRID_WIDTH;
-	//int grid[grid_size] = [];
+	int grid[grid_size];
+	TraceLog(LOG_INFO, "THIS IS THE GRID[0]=%d" , grid[0]);
 	Position p = CalculatePosition(13);
 	TraceLog(LOG_INFO, "x:%d, y:%d", p.x, p.y);
 	int idx = CalculateIndex(&p);
@@ -49,10 +53,14 @@ int main ()
 	SearchAndSetResourceDir("resources");
 
 	// Load a texture from the resources directory
-	Texture wabbit = LoadTexture("wabbit_alpha_16x16.png");
+	Texture food_tex = LoadTexture("wabbit_16x16.png");
+	AddToTextureArray(food_tex);
+	BindFoodTexture(&food ,food_tex);
 	Texture snake_tex = LoadTexture("snake_body_16x16.png");
+	BindSnakeTexture(snake, snake_tex);
+	AddToTextureArray(snake_tex);
 	
-	float interval = 0.20f;
+	float interval = 0.150f; // 0.150f , 0.050f
 	float speed = 10.0f;
 	float dt = 0.0f;
 	int random_idx = 0;
@@ -63,52 +71,71 @@ int main ()
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
+		if (HasSnakeCollided(snake))
+		{
+			break;
+		}
 		dt = GetFrameTime();
-		IsKeyPressed(KEY_A);
+		if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
+		{
+			SetSnakeDirection(snake, WEST);
+		}
+		else if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
+		{
+			SetSnakeDirection(snake, EAST);
+		}
+		else if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
+		{
+			SetSnakeDirection(snake, NORTH);
+		}
+		else if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
+		{
+			SetSnakeDirection(snake, SOUTH);
+		}
+		if (IsKeyPressed(KEY_SPACE))
+		{
+			snake->length += 1;
+		}
+
 		double current_time = GetTime();
 
 		time_accummulated += dt;
 
-		if (time_accummulated >= interval) {
-			
-			
-			time_accummulated = 0.0f;
+		for (int i = 0; i < grid_size; i++) {
+
 		}
 
+		if (time_accummulated >= interval) {
+			
+			// update logic frequency
+			MoveSnake(snake);
+			if (HasSnakeTouchFood(snake, &food))
+			{
+				SnakeEatsFood(snake);
+				ResetLocation(&food);
+			}
+			time_accummulated = 0.0f;
+		}
 
 		BeginDrawing();
 
 		ClearBackground(SKYBLUE);
 		
-		DrawTexture(wabbit, 400, 200, WHITE);
-		for (int i = 0; i < snake->length; i++)
-		{
-			DrawTexture(snake_tex, TILE_SIZE * snake->body[i].x, TILE_SIZE * snake->body[i].y, WHITE);
-		}
-		for (int i = 0; i < GRID_WIDTH; i++)
-		{
-			for (int j = 0; j < GRID_HEIGHT; j++)
-			{
-				if (i == GRID_WIDTH - 1 || i == 0 || j == GRID_HEIGHT - 1 || j == 0)
-				{
-					DrawTexture(snake_tex, TILE_SIZE * i, j * TILE_SIZE, PURPLE);
-				}
-			}
-		}
-		DrawText("Hello Raylib", SCREEN_WIDTH / 2, 0, 50, MAGENTA);
 		
-		Position _p = CalculatePosition(random_idx);
-		DrawTexture(snake_tex, _p.x * TILE_SIZE, _p.y * TILE_SIZE, WHITE);
+		RenderSnake(snake);
+		RenderFood(&food);
+		
+		for (int i = 0; i < GRID_WIDTH; i++)
+
+		DrawRectangle(0, SCREEN_HEIGHT, SCREEN_WIDTH, 32, DARKBLUE);
+		DrawText("Hello Raylib", SCREEN_WIDTH / 2, 0, 50, MAGENTA);
 		DrawCircle(GetMouseX(), GetMouseY(), 10, RED);
 		EndDrawing();
-
-
-
 	}
 
 	// cleanup
-	UnloadTexture(wabbit);
-	UnloadTexture(snake_tex);
+	UnloadTexture(food.texture);
+	UnloadTexture(snake->texture);
 
 	free(snake);
 
@@ -132,7 +159,28 @@ int CalculateIndex(Position* p)
 	return idx;
 }
 
-void Render() {
+void Render()
+{
 
 }
+
+void AddToTextureArray(Texture tex)
+{
+	texture_array[texture_array_size++] = tex;
+}
+
+bool HasSnakeTouchFood(Snake* snake, Food* food)
+{
+	if (snake->body[0].x == food->position.x && snake->body[0].y == food->position.y)
+	{
+		return true;
+	}
+	return false;
+}
+
+void GameLogic()
+{
+
+}
+
 
