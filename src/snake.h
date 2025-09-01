@@ -7,9 +7,11 @@
 #include "direction.h"
 #include "game.h"
 
+#define INIT_SNAKE_SIZE 3
+
 typedef struct
 {
-    Position body[GRID_WIDTH * GRID_HEIGHT];
+    Vector2 body[GRID_WIDTH * GRID_HEIGHT];
     int length;
     Direction dir;
     Texture texture;

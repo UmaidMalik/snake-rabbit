@@ -11,8 +11,8 @@
 #define SCREEN_HEIGHT (GRID_HEIGHT * TILE_SIZE)
 
 
-Position CalculatePosition(int idx);
-int CalculateIndex(Position* p);
+Vector2 CalculatePosition(int idx);
+int CalculateIndex(Vector2* p);
 void Render(void);
 void GameLogic();
 

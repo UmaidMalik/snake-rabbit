@@ -6,7 +6,7 @@
 
 typedef struct
 {
-    Position position;
+    Vector2 position;
     Texture texture;
 } Food;
 

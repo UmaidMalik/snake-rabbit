@@ -10,6 +10,7 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 #include "raylib.h"
 #include "position.h"
 #include "snake.h"
@@ -19,6 +20,10 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 
 void AddToTextureArray(Texture tex);
 bool HasSnakeTouchFood(Snake* snake, Food* food);
+void LoadGame();
+void LoadMenu();
+void LoadGameOver();
+
 Texture texture_array[10];
 int texture_array_size = 0;
 
@@ -31,12 +36,17 @@ int main ()
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + 32, "Snake");
 	SetTargetFPS(FPS);
 
+	char fps_buffer[16];
+	
+	char score_buffer[16];
+
 	Snake* snake = malloc(sizeof(Snake));
 	if (!snake)
 	{
 		TraceLog(LOG_ERROR, "Snake struct not allocated: out of memory");
 		exit(EXIT_FAILURE);
 	}
+
 	InitSnake(snake);
 	Food food;
 	InitFood(&food);
@@ -44,7 +54,7 @@ int main ()
 	int grid_size = GRID_HEIGHT * GRID_WIDTH;
 	int grid[grid_size];
 	TraceLog(LOG_INFO, "THIS IS THE GRID[0]=%d" , grid[0]);
-	Position p = CalculatePosition(13);
+	Vector2 p = CalculatePosition(13);
 	TraceLog(LOG_INFO, "x:%d, y:%d", p.x, p.y);
 	int idx = CalculateIndex(&p);
 	TraceLog(LOG_INFO, "idx:%d", idx);
@@ -101,10 +111,6 @@ int main ()
 
 		time_accummulated += dt;
 
-		for (int i = 0; i < grid_size; i++) {
-
-		}
-
 		if (time_accummulated >= interval) {
 			
 			// update logic frequency
@@ -125,10 +131,22 @@ int main ()
 		RenderSnake(snake);
 		RenderFood(&food);
 		
-		for (int i = 0; i < GRID_WIDTH; i++)
-
+		// bottom ui start
 		DrawRectangle(0, SCREEN_HEIGHT, SCREEN_WIDTH, 32, DARKBLUE);
-		DrawText("Hello Raylib", SCREEN_WIDTH / 2, 0, 50, MAGENTA);
+			// fps render
+			char fps_str[64] = "FPS: ";
+			sprintf(fps_buffer, "%d", GetFPS());
+			strcat(fps_str, fps_buffer);
+			DrawText(fps_str, TILE_SIZE, SCREEN_HEIGHT + 8, 18, WHITE);
+			// end fps render
+			// score render
+			char score_str[64] = "SCORE: ";
+			sprintf(score_buffer, "%d", snake->length - INIT_SNAKE_SIZE);
+			strcat(score_str, score_buffer);
+			DrawText(score_str, TILE_SIZE + 128, SCREEN_HEIGHT + 8, 18, WHITE);
+			// end score render
+		// bottom ui end
+		
 		DrawCircle(GetMouseX(), GetMouseY(), 10, RED);
 		EndDrawing();
 	}
@@ -144,15 +162,15 @@ int main ()
 	return 0;
 }
 
-Position CalculatePosition(int idx)
+Vector2 CalculatePosition(int idx)
 {
-	int px = idx % GRID_WIDTH;
-	int py = idx / GRID_WIDTH;
-	Position p = {px, py};
+    float px = idx % GRID_WIDTH;
+	float py = idx / GRID_WIDTH;
+	Vector2 p = {px, py};
 	return p;
 }
 
-int CalculateIndex(Position* p)
+int CalculateIndex(Vector2* p)
 {
 	int idx = 0;
 	idx = p->x + (GRID_WIDTH * p->y);
@@ -179,6 +197,21 @@ bool HasSnakeTouchFood(Snake* snake, Food* food)
 }
 
 void GameLogic()
+{
+
+}
+
+void LoadGame()
+{
+
+}
+
+void LoadMenu()
+{
+
+}
+
+void LoadGameOver()
 {
 
 }

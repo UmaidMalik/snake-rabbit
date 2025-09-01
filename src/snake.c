@@ -5,7 +5,7 @@ void InitSnake(Snake* snake)
 {
     snake->body[0].x = 10;
     snake->body[0].y = GRID_HEIGHT / 2;
-    snake->length = 3;
+    snake->length = INIT_SNAKE_SIZE;
     snake->dir = EAST;
 }
 
@@ -52,7 +52,7 @@ void SetSnakeDirection(Snake* snake, Direction direction)
 
 bool HasSnakeCollided(Snake* snake)
 {
-    Position head = snake->body[0];
+    Vector2 head = snake->body[0];
 
     // if snake collided with boundary
     if (head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 || head.y >= GRID_HEIGHT)
