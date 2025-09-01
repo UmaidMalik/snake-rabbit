@@ -2,7 +2,6 @@
 #define FOOD_H
 
 #include "raylib.h"
-#include "position.h"
 
 typedef struct
 {

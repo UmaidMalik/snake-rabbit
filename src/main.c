@@ -12,20 +12,30 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include <stdlib.h>
 #include <string.h>
 #include "raylib.h"
-#include "position.h"
 #include "snake.h"
 #include "food.h"
 #include "game.h"
+#include "timer.h"
+#include "game_buffers.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
 void AddToTextureArray(Texture tex);
 bool HasSnakeTouchFood(Snake* snake, Food* food);
-void LoadGame();
-void LoadMenu();
-void LoadGameOver();
+void GameLogic(Snake* snake, Food* food);
+void GameRender(Snake* snake, Food* food, GameBuffers* buffers);
+void MenuLogic();
+void MenuRender();
+void GameOverLogic();
+void GameOverRender();
+void DrawBottomUI(GameBuffers* buffers);
+void DrawShader(RenderTexture2D* target, Shader* shader);
 
 Texture texture_array[10];
 int texture_array_size = 0;
+RenderTexture2D target;
+Snake* snake;
+
+Timer timer;
 
 int main ()
 {
@@ -36,17 +46,13 @@ int main ()
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + 32, "Snake");
 	SetTargetFPS(FPS);
 
-	char fps_buffer[16];
-	
-	char score_buffer[16];
-
-	Snake* snake = malloc(sizeof(Snake));
+	snake = malloc(sizeof(Snake));
 	if (!snake)
 	{
 		TraceLog(LOG_ERROR, "Snake struct not allocated: out of memory");
 		exit(EXIT_FAILURE);
 	}
-
+	GameBuffers buffers;
 	InitSnake(snake);
 	Food food;
 	InitFood(&food);
@@ -62,93 +68,50 @@ int main ()
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	SearchAndSetResourceDir("resources");
 
+	target = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+	Shader crt_shader = LoadShader(0, "crt_shader.fs");
+	int time_loc = GetShaderLocation(crt_shader, "uTime");
+
 	// Load a texture from the resources directory
 	Texture food_tex = LoadTexture("wabbit_16x16.png");
-	AddToTextureArray(food_tex);
+	//AddToTextureArray(food_tex);
 	BindFoodTexture(&food ,food_tex);
 	Texture snake_tex = LoadTexture("snake_body_16x16.png");
 	BindSnakeTexture(snake, snake_tex);
-	AddToTextureArray(snake_tex);
+	//AddToTextureArray(snake_tex);
 	
 	float interval = 0.150f; // 0.150f , 0.050f
-	float speed = 10.0f;
-	float dt = 0.0f;
 	int random_idx = 0;
-	float time_accummulated = 0.0f;
-	
-	// random_idx = GetRandomValue(0, (GRID_WIDTH * GRID_HEIGHT) - 1);
+	timer_set_interval(&timer, interval);
 
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
-		if (HasSnakeCollided(snake))
-		{
-			break;
-		}
-		dt = GetFrameTime();
-		if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
-		{
-			SetSnakeDirection(snake, WEST);
-		}
-		else if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
-		{
-			SetSnakeDirection(snake, EAST);
-		}
-		else if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
-		{
-			SetSnakeDirection(snake, NORTH);
-		}
-		else if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
-		{
-			SetSnakeDirection(snake, SOUTH);
-		}
-		if (IsKeyPressed(KEY_SPACE))
-		{
-			snake->length += 1;
-		}
+		float time = GetTime();
+		SetShaderValue(crt_shader, time_loc, &time, SHADER_UNIFORM_FLOAT);
 
-		double current_time = GetTime();
-
-		time_accummulated += dt;
-
-		if (time_accummulated >= interval) {
-			
-			// update logic frequency
-			MoveSnake(snake);
-			if (HasSnakeTouchFood(snake, &food))
-			{
-				SnakeEatsFood(snake);
-				ResetLocation(&food);
-			}
-			time_accummulated = 0.0f;
-		}
+		GameLogic(snake, &food);
+		BeginTextureMode(target);
+    	ClearBackground(WHITE);
+    	// Draw your game scene here
+		GameRender(snake, &food, &buffers);
+		EndTextureMode();
 
 		BeginDrawing();
+		BeginShaderMode(crt_shader);
+		DrawTextureRec(
+			target.texture,
+			(Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height },
+			(Vector2){ 0, 0 },
+			WHITE
+		);
+		EndShaderMode();
+		
+		DrawBottomUI(&buffers);
 
-		ClearBackground(SKYBLUE);
-		
-		
-		RenderSnake(snake);
-		RenderFood(&food);
-		
-		// bottom ui start
-		DrawRectangle(0, SCREEN_HEIGHT, SCREEN_WIDTH, 32, DARKBLUE);
-			// fps render
-			char fps_str[64] = "FPS: ";
-			sprintf(fps_buffer, "%d", GetFPS());
-			strcat(fps_str, fps_buffer);
-			DrawText(fps_str, TILE_SIZE, SCREEN_HEIGHT + 8, 18, WHITE);
-			// end fps render
-			// score render
-			char score_str[64] = "SCORE: ";
-			sprintf(score_buffer, "%d", snake->length - INIT_SNAKE_SIZE);
-			strcat(score_str, score_buffer);
-			DrawText(score_str, TILE_SIZE + 128, SCREEN_HEIGHT + 8, 18, WHITE);
-			// end score render
-		// bottom ui end
-		
-		DrawCircle(GetMouseX(), GetMouseY(), 10, RED);
 		EndDrawing();
+
+		
 	}
 
 	// cleanup
@@ -177,10 +140,6 @@ int CalculateIndex(Vector2* p)
 	return idx;
 }
 
-void Render()
-{
-
-}
 
 void AddToTextureArray(Texture tex)
 {
@@ -189,31 +148,103 @@ void AddToTextureArray(Texture tex)
 
 bool HasSnakeTouchFood(Snake* snake, Food* food)
 {
-	if (snake->body[0].x == food->position.x && snake->body[0].y == food->position.y)
+	if ((int)snake->body[0].x == (int)food->position.x && (int)snake->body[0].y == (int)food->position.y)
 	{
 		return true;
 	}
 	return false;
 }
 
-void GameLogic()
+void GameLogic(Snake* snake, Food* food)
+{
+	timer_update(&timer);
+	if (HasSnakeCollided(snake))
+	{
+		return;
+	}
+	if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
+	{
+		SetSnakeDirection(snake, WEST);
+	}
+	else if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
+	{
+		SetSnakeDirection(snake, EAST);
+	}
+	else if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
+	{
+		SetSnakeDirection(snake, NORTH);
+	}
+	else if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
+	{
+		SetSnakeDirection(snake, SOUTH);
+	}
+	// TODO: removed this below  
+	if (IsKeyPressed(KEY_SPACE))
+	{
+		snake->length += 1;
+	}
+
+	if (HasSnakeTouchFood(snake, food))
+	{
+		SnakeEatsFood(snake);
+		ResetLocation(food);
+	}
+
+	if (timer.time_accumulated >= timer.interval) {
+		MoveSnake(snake);
+		TraceLog(LOG_INFO, "SNAKE POS: {%f,%f}", snake->body[0].x, snake->body[0].y);
+		TraceLog(LOG_INFO, "FOOD  POS: {%f,%f}", food->position.x, food->position.y);
+		timer.time_accumulated = 0.0f;
+	}
+}
+
+void GameRender(Snake* snake, Food* food, GameBuffers* buffers)
+{
+	ClearBackground(SKYBLUE);
+	RenderSnake(snake);
+	RenderFood(food);
+}
+
+void MenuLogic()
 {
 
 }
 
-void LoadGame()
+void MenuRender()
 {
 
 }
 
-void LoadMenu()
+void GameOverLogic()
 {
 
 }
 
-void LoadGameOver()
+void GameOverRender()
 {
 
 }
 
+void DrawBottomUI(GameBuffers* buffers)
+{
+	// bottom ui start
+	DrawRectangle(0, SCREEN_HEIGHT, SCREEN_WIDTH, 32, DARKBLUE);
+	// fps render
+	GameBufferUpdateFPS(buffers, GetFPS());
+	DrawText(buffers->fps, TILE_SIZE, SCREEN_HEIGHT + 8, 18, WHITE);
+	// end fps render
+	// score render
+	GameBufferUpdateScore(buffers, snake->length - INIT_SNAKE_SIZE);
+	DrawText(buffers->score, TILE_SIZE * 16, SCREEN_HEIGHT + 8, 18, WHITE);
+	// end score render
+	// bottom ui end
+	// high score render
+	GameBufferUpdateHighScore(buffers, 0);
+	DrawText(buffers->high_score, TILE_SIZE * 32, SCREEN_HEIGHT + 8, 18, WHITE);
+	// end high score render
+}
 
+void DrawShader(RenderTexture2D* target, Shader* shader)
+{
+
+}

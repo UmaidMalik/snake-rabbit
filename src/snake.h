@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 #include "raylib.h"
-#include "position.h"
 #include "direction.h"
 #include "game.h"
 

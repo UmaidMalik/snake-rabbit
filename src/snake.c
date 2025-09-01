@@ -23,16 +23,16 @@ void MoveSnake(Snake* snake)
 
     switch (snake->dir) {
         case NORTH:
-            snake->body[0].y -= 1;
+            snake->body[0].y -= 1.0f;
             break;
         case SOUTH:
-            snake->body[0].y += 1;
+            snake->body[0].y += 1.0f;
             break;
         case WEST:
-            snake->body[0].x -= 1;
+            snake->body[0].x -= 1.0f;
             break;
         case EAST:
-            snake->body[0].x += 1;
+            snake->body[0].x += 1.0f;
             break;
     }
 }
@@ -70,8 +70,7 @@ bool HasSnakeCollided(Snake* snake)
                 return true;
             } 
         }
-    }
-    
+    }  
     return false;
 }
 
@@ -82,9 +81,9 @@ void SnakeEatsFood(Snake* snake)
 
 void RenderSnake(Snake* snake)
 {
-    DrawTexture(snake->texture, TILE_SIZE * snake->body[0].x, TILE_SIZE * snake->body[0].y, GREEN);
+    DrawTexture(snake->texture, TILE_SIZE * snake->body[0].x, TILE_SIZE * snake->body[0].y, GOLD);
     for (int i = 1; i < snake->length; i++)
     {
-        DrawTexture(snake->texture, TILE_SIZE * snake->body[i].x, TILE_SIZE * snake->body[i].y, WHITE);
+        DrawTexture(snake->texture, TILE_SIZE * snake->body[i].x, TILE_SIZE * snake->body[i].y, VIOLET);
     }
 }
