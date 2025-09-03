@@ -7,9 +7,11 @@ typedef struct
     float time_accumulated;
     float interval;
     float current_time;
+    float rabbit_move_time_accum;
+    float rabbit_interval;
+    float interval_scale;
 } Timer;
 
 void timer_update(Timer* t);
-void timer_set_interval(Timer* t, float interval);
 
 #endif

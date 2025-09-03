@@ -2,6 +2,8 @@
 #define FOOD_H
 
 #include "raylib.h"
+#include "snake.h"
+#include "game.h"
 
 typedef struct
 {
@@ -9,9 +11,10 @@ typedef struct
     Texture texture;
 } Food;
 
-void InitFood(Food* food);
-void BindFoodTexture(Food* food, Texture texture);
-void RenderFood(Food* food);
-void ResetLocation(Food* food);
+void FoodInit(Food* food);
+void FoodBindTexture(Food* food, Texture texture);
+void FoodRender(Food* food);
+void FoodResetLocation(Food* food, Snake* snake);
+void FoodMove(Food* food, Snake* snake);
 
 #endif
