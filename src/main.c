@@ -48,13 +48,11 @@ GameState game_state;
 
 int main ()
 {
-	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-
-	// Create the window and OpenGL context
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + BOTTOM_UI_HEIGHT, "Snake");
 	SetTargetFPS(FPS);
 
+	
 	snake = malloc(sizeof(Snake));
 	if (!snake)
 	{
@@ -65,7 +63,6 @@ int main ()
 	InitSnake(snake);
 	FoodInit(&food);
 	
-	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	SearchAndSetResourceDir("resources");
 
 	target = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -91,7 +88,6 @@ int main ()
 
 	game_state = MENU;
 
-	// game loop
 	while (!WindowShouldClose())
 	{
 		switch(game_state)
@@ -105,13 +101,9 @@ int main ()
 		}
 	}
 
-	// cleanup
 	UnloadTexture(food.texture);
 	UnloadTexture(snake->texture);
-
 	free(snake);
-
-	// destroy the window and cleanup the OpenGL context
 	CloseWindow();
 	return 0;
 }
@@ -170,6 +162,11 @@ void GameLogic(Snake* snake, Food* food)
 	}
 	if (IsKeyReleased(KEY_SPACE))
 	{
+		timer.interval_scale = 1.0f;
+	}
+	if (IsKeyPressed(KEY_Q))
+	{
+		game_state = MENU;
 		timer.interval_scale = 1.0f;
 	}
 	// TODO: removed this below  

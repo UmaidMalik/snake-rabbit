@@ -55,13 +55,6 @@ bool HasSnakeCollided(Snake* snake)
 {
     Vector2 head = snake->body[0];
 
-    // if snake collided with boundary
-    /*if (head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 || head.y >= GRID_HEIGHT)
-    {
-        return true;
-    }*/
-
-    // if snake collided with its body
     if (snake->length > 4)
     {
         for (int i = 1; i < snake->length; i++)
