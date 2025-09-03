@@ -80,7 +80,7 @@ int main ()
 	BindSnakeTexture(snake, snake_tex);
 	
 	float interval = 0.150f;
-	float rabbit_interval = 0.6f; // 0.600f medium 1.600f easy
+	float rabbit_interval = 0.15f; // 0.3 hard 0.600f medium 1.600f easy
 	int random_idx = 0;
 	timer.interval = interval;
 	timer.rabbit_interval = rabbit_interval;
@@ -139,6 +139,7 @@ void GameLogic(Snake* snake, Food* food)
 	{
 		InitSnake(snake);
 		game_state = MENU;
+		timer.interval_scale = 1.0f;
 	}
 	if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
 	{
