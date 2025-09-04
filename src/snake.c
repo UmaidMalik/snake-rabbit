@@ -2,7 +2,7 @@
 #include "game.h"
 #include "game_math.h"
 
-void InitSnake(Snake* snake)
+void Snake_Init(Snake* snake)
 {
     snake->body[0].x = 10;
     snake->body[0].y = GRID_HEIGHT / 2;
@@ -10,12 +10,12 @@ void InitSnake(Snake* snake)
     snake->dir = EAST;
 }
 
-void BindSnakeTexture(Snake* snake, Texture texture)
+void Snake_BindTexture(Snake* snake, Texture texture)
 {
     snake->texture = texture;
 }
 
-void MoveSnake(Snake* snake)
+void Snake_Move(Snake* snake)
 {
     for (int i = snake->length - 1; i > 0; i--)
     {
@@ -24,21 +24,21 @@ void MoveSnake(Snake* snake)
 
     switch (snake->dir) {
         case NORTH:
-            snake->body[0].y = game_math_mod((int)(snake->body[0].y - 1.0f), GRID_HEIGHT);
+            snake->body[0].y = GameMath_Mod((int)(snake->body[0].y - 1.0f), GRID_HEIGHT);
             break;
         case SOUTH:
-            snake->body[0].y = game_math_mod((int)(snake->body[0].y + 1.0f), GRID_HEIGHT);
+            snake->body[0].y = GameMath_Mod((int)(snake->body[0].y + 1.0f), GRID_HEIGHT);
             break;
         case WEST:
-            snake->body[0].x = game_math_mod((int)(snake->body[0].x - 1.0f), GRID_WIDTH);
+            snake->body[0].x = GameMath_Mod((int)(snake->body[0].x - 1.0f), GRID_WIDTH);
             break;
         case EAST:
-            snake->body[0].x = game_math_mod((int)(snake->body[0].x + 1.0f), GRID_WIDTH);
+            snake->body[0].x = GameMath_Mod((int)(snake->body[0].x + 1.0f), GRID_WIDTH);
             break;
     }
 }
 
-void SetSnakeDirection(Snake* snake, Direction direction)
+void Snake_SetDirection(Snake* snake, Direction direction)
 {
     if (
         (snake->dir == NORTH && direction == SOUTH)
@@ -51,7 +51,7 @@ void SetSnakeDirection(Snake* snake, Direction direction)
     snake->dir = direction;
 }
 
-bool HasSnakeCollided(Snake* snake)
+bool Snake_HasCollided(Snake* snake)
 {
     Vector2 head = snake->body[0];
 
@@ -68,12 +68,12 @@ bool HasSnakeCollided(Snake* snake)
     return false;
 }
 
-void SnakeEatsRabbit(Snake* snake)
+void Snake_EatsRabbit(Snake* snake)
 {
     snake->length += 1;
 }
 
-void RenderSnake(Snake* snake)
+void Snake_Render(Snake* snake)
 {
     DrawTexture(snake->texture, TILE_SIZE * snake->body[0].x, TILE_SIZE * snake->body[0].y, GOLD);
     for (int i = 1; i < snake->length; i++)

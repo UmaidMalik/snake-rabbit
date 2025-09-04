@@ -14,6 +14,6 @@ typedef struct
     float interval_scale;
 } Timer;
 
-void timer_update(Timer* t);
+void Timer_Update(Timer* t);
 
 #endif

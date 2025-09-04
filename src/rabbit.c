@@ -1,22 +1,22 @@
 #include "rabbit.h"
 #include "game_math.h"
 
-void RabbitInit(Rabbit* rabbit)
+void Rabbit_Init(Rabbit* rabbit)
 {
-    rabbit->position = CalculatePosition(GetRandomValue(0, (GRID_WIDTH * GRID_HEIGHT) - 1));
+    rabbit->position = Game_CalculatePosition(GetRandomValue(0, (GRID_WIDTH * GRID_HEIGHT) - 1));
 }
 
-void RabbitBindTexture(Rabbit* rabbit, Texture texture)
+void Rabbit_BindTexture(Rabbit* rabbit, Texture texture)
 {
     rabbit->texture = texture;
 }
 
-void RabbitRender(Rabbit* rabbit)
+void Rabbit_Render(Rabbit* rabbit)
 {
     DrawTexture(rabbit->texture, TILE_SIZE * rabbit->position.x, TILE_SIZE * rabbit->position.y, WHITE);
 }
 
-void RabbitResetLocation(Rabbit* rabbit, Snake* snake)
+void Rabbit_ResetLocation(Rabbit* rabbit, Snake* snake)
 {
     int max_tries = 10000;
     bool flag = true;
@@ -24,7 +24,7 @@ void RabbitResetLocation(Rabbit* rabbit, Snake* snake)
     while (flag && count < max_tries)
     {
         flag = false;
-        rabbit->position = CalculatePosition(GetRandomValue(0, (GRID_WIDTH * GRID_HEIGHT) - 1));
+        rabbit->position = Game_CalculatePosition(GetRandomValue(0, (GRID_WIDTH * GRID_HEIGHT) - 1));
         for (int i = 0; i < snake->length; i++)
         {
             if (rabbit->position.x == snake->body[i].x && rabbit->position.y == snake->body[i].y)
@@ -37,7 +37,7 @@ void RabbitResetLocation(Rabbit* rabbit, Snake* snake)
     }
 }
 
-void RabbitMove(Rabbit* rabbit,  Snake* snake)
+void Rabbit_Move(Rabbit* rabbit,  Snake* snake)
 {
     int max_tries = 50;
     bool flag = true;
@@ -47,8 +47,8 @@ void RabbitMove(Rabbit* rabbit,  Snake* snake)
         int dx = GetRandomValue(-1, 1);
         int dy = GetRandomValue(-1, 1);
         flag = false;
-        rabbit->position.x = game_math_mod((int) (rabbit->position.x + dx), GRID_WIDTH);
-        rabbit->position.y = game_math_mod((int) (rabbit->position.y + dy), GRID_HEIGHT);
+        rabbit->position.x = GameMath_Mod((int) (rabbit->position.x + dx), GRID_WIDTH);
+        rabbit->position.y = GameMath_Mod((int) (rabbit->position.y + dy), GRID_HEIGHT);
         for (int i = 0; i < snake->length; i++)
         {
             if (rabbit->position.x == snake->body[i].x && rabbit->position.y == snake->body[i].y)

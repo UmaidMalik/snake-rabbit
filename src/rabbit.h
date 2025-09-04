@@ -13,10 +13,10 @@ typedef struct
     Texture texture;
 } Rabbit;
 
-void RabbitInit(Rabbit* rabbit);
-void RabbitBindTexture(Rabbit* rabbit, Texture texture);
-void RabbitRender(Rabbit* rabbit);
-void RabbitResetLocation(Rabbit* rabbit, Snake* snake);
-void RabbitMove(Rabbit* rabbit, Snake* snake);
+void Rabbit_Init(Rabbit* rabbit);
+void Rabbit_BindTexture(Rabbit* rabbit, Texture texture);
+void Rabbit_Render(Rabbit* rabbit);
+void Rabbit_ResetLocation(Rabbit* rabbit, Snake* snake);
+void Rabbit_Move(Rabbit* rabbit, Snake* snake);
 
 #endif

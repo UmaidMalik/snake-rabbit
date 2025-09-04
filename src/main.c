@@ -60,8 +60,8 @@ int main ()
 		exit(EXIT_FAILURE);
 	}
 	
-	InitSnake(snake);
-	RabbitInit(&rabbit);
+	Snake_Init(snake);
+	Rabbit_Init(&rabbit);
 	
 	SearchAndSetResourceDir("resources");
 
@@ -70,14 +70,14 @@ int main ()
 	time_loc = GetShaderLocation(crt_shader, "uTime");
 
 	Texture wabbit_tex = LoadTexture("wabbit_256x256.png");
-	RabbitBindTexture(&wabbit, wabbit_tex);
+	Rabbit_BindTexture(&wabbit, wabbit_tex);
 
 	// Load a texture from the resources directory
 	Texture rabbit_tex = LoadTexture("wabbit_32x32.png");
-	RabbitBindTexture(&rabbit , rabbit_tex);
+	Rabbit_BindTexture(&rabbit , rabbit_tex);
 
 	Texture snake_tex = LoadTexture("snake_body_32x32.png");
-	BindSnakeTexture(snake, snake_tex);
+	Snake_BindTexture(snake, snake_tex);
 	
 	int random_idx = 0;
 	timer.interval =  0.150f;
@@ -106,7 +106,7 @@ int main ()
 	return 0;
 }
 
-Vector2 CalculatePosition(int idx)
+Vector2 Game_CalculatePosition(int idx)
 {
     float px = idx % GRID_WIDTH;
 	float py = idx / GRID_WIDTH;
@@ -114,7 +114,7 @@ Vector2 CalculatePosition(int idx)
 	return p;
 }
 
-int CalculateIndex(Vector2* p)
+int Game_CalculateIndex(Vector2* p)
 {
 	int idx = 0;
 	idx = p->x + (GRID_WIDTH * p->y);
@@ -132,28 +132,28 @@ bool HasSnakeTouchRabbit(Snake* snake, Rabbit* rabbit)
 
 void GameLogic(Snake* snake, Rabbit* rabbit)
 {
-	timer_update(&timer);
-	if (HasSnakeCollided(snake))
+	Timer_Update(&timer);
+	if (Snake_HasCollided(snake))
 	{
-		InitSnake(snake);
+		Snake_Init(snake);
 		game_state = MENU;
 		timer.interval_scale = 1.0f;
 	}
 	if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
 	{
-		SetSnakeDirection(snake, WEST);
+		Snake_SetDirection(snake, WEST);
 	}
 	if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
 	{
-		SetSnakeDirection(snake, EAST);
+		Snake_SetDirection(snake, EAST);
 	}
 	if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
 	{
-		SetSnakeDirection(snake, NORTH);
+		Snake_SetDirection(snake, NORTH);
 	}
 	if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
 	{
-		SetSnakeDirection(snake, SOUTH);
+		Snake_SetDirection(snake, SOUTH);
 	}
 	if (IsKeyDown(KEY_SPACE))
 	{
@@ -176,8 +176,8 @@ void GameLogic(Snake* snake, Rabbit* rabbit)
 
 	if (HasSnakeTouchRabbit(snake, rabbit))
 	{
-		SnakeEatsRabbit(snake);
-		RabbitResetLocation(rabbit, snake);
+		Snake_EatsRabbit(snake);
+		Rabbit_ResetLocation(rabbit, snake);
 	}
 
 	TraceLog(LOG_DEBUG, "SNAKE   POS: {%f,%f}", snake->body[0].x, snake->body[0].y);
@@ -185,7 +185,7 @@ void GameLogic(Snake* snake, Rabbit* rabbit)
 
 	if (timer.time_accumulated >= timer.interval * timer.interval_scale)
 	{
-		MoveSnake(snake);
+		Snake_Move(snake);
 		timer.time_accumulated = 0.0f;
 	}
 
@@ -198,7 +198,7 @@ void GameLogic(Snake* snake, Rabbit* rabbit)
 	if (timer.rabbit_move_time_accum >= timer.rabbit_interval)
 	{
 		if (dist < 4.0f) {
-		RabbitMove(rabbit, snake);
+		Rabbit_Move(rabbit, snake);
 		timer.rabbit_move_time_accum = 0.0f;
 		}
 	}
@@ -208,8 +208,8 @@ void GameLogic(Snake* snake, Rabbit* rabbit)
 void GameRender(Snake* snake, Rabbit* rabbit, GameBuffers* buffers)
 {
 	ClearBackground(SKYBLUE);
-	RenderSnake(snake);
-	RabbitRender(rabbit);
+	Snake_Render(snake);
+	Rabbit_Render(rabbit);
 }
 
 void MenuLogic()
@@ -239,13 +239,13 @@ void DrawBottomUI(GameBuffers* buffers)
 	// bottom UI
 	DrawRectangle(0, SCREEN_HEIGHT, SCREEN_WIDTH, 32, DARKBLUE);
 	// fps render
-	GameBufferUpdateFPS(buffers, GetFPS());
+	GameBuffer_UpdateFPS(buffers, GetFPS());
 	DrawText(buffers->fps, TILE_SIZE, BOTTOM_UI_TEXT_HEIGHT, 18, WHITE);
 	// score render
-	GameBufferUpdateScore(buffers, GAME_SCORE);
+	GameBuffer_UpdateScore(buffers, GAME_SCORE);
 	DrawText(buffers->score, TILE_SIZE * 4, BOTTOM_UI_TEXT_HEIGHT, 18, WHITE);
 	// high score render
-	GameBufferUpdateHighScore(buffers, 0);
+	GameBuffer_UpdateHighScore(buffers, 0);
 	DrawText(buffers->high_score, TILE_SIZE * 8, BOTTOM_UI_TEXT_HEIGHT, 18, WHITE);
 }
 

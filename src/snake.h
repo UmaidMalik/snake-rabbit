@@ -18,12 +18,12 @@ typedef struct
     Texture texture;
 } Snake;
 
-void MoveSnake(Snake* snake);
-void SetSnakeDirection(Snake* snake, Direction _dir);
-bool HasSnakeCollided(Snake* snake);
-void SnakeEatsRabbit(Snake* snake);
-void RenderSnake(Snake* snake);
-void BindSnakeTexture(Snake* snake, Texture texture);
-void InitSnake(Snake* snake);
+void Snake_Move(Snake* snake);
+void Snake_SetDirection(Snake* snake, Direction _dir);
+bool Snake_HasCollided(Snake* snake);
+void Snake_EatsRabbit(Snake* snake);
+void Snake_Render(Snake* snake);
+void Snake_BindTexture(Snake* snake, Texture texture);
+void Snake_Init(Snake* snake);
 
 #endif

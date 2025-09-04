@@ -10,8 +10,8 @@ typedef struct
     char high_score[32];
 } GameBuffers;
 
-void GameBufferUpdateScore(GameBuffers* buffers, int score);
-void GameBufferUpdateFPS(GameBuffers* buffers, int fps);
-void GameBufferUpdateHighScore(GameBuffers* buffers, int high_score);
+void GameBuffer_UpdateScore(GameBuffers* buffers, int score);
+void GameBuffer_UpdateFPS(GameBuffers* buffers, int fps);
+void GameBuffer_UpdateHighScore(GameBuffers* buffers, int high_score);
 
 #endif
