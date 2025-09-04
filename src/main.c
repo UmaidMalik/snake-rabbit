@@ -79,11 +79,9 @@ int main ()
 	Texture snake_tex = LoadTexture("snake_body_32x32.png");
 	BindSnakeTexture(snake, snake_tex);
 	
-	float interval = 0.150f;
-	float rabbit_interval = 0.15f; // 0.3 hard 0.600f medium 1.600f easy
 	int random_idx = 0;
-	timer.interval = interval;
-	timer.rabbit_interval = rabbit_interval;
+	timer.interval =  0.150f;
+	timer.rabbit_interval = 0.3f; // 0.15 very hard 0.3 hard 0.600f medium 1.600f easy
 	timer.interval_scale = 1.0f;
 
 	game_state = MENU;
@@ -191,10 +189,18 @@ void GameLogic(Snake* snake, Rabbit* rabbit)
 		timer.time_accumulated = 0.0f;
 	}
 
+		float dx = rabbit->position.x - snake->body[0].x;
+		float dy = rabbit->position.y - snake->body[0].y;
+		dx *= dx;
+		dy *= dy;
+		float dist = (float) sqrt(dx + dy);
+
 	if (timer.rabbit_move_time_accum >= timer.rabbit_interval)
 	{
+		if (dist < 4.0f) {
 		RabbitMove(rabbit, snake);
 		timer.rabbit_move_time_accum = 0.0f;
+		}
 	}
 	
 }
