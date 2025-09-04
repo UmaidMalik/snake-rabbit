@@ -13,16 +13,16 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include <string.h>
 #include "raylib.h"
 #include "snake.h"
-#include "food.h"
+#include "rabbit.h"
 #include "game.h"
 #include "timer.h"
 #include "game_buffers.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include "game_state.h"
 
-bool HasSnakeTouchFood(Snake* snake, Food* food);
-void GameLogic(Snake* snake, Food* food);
-void GameRender(Snake* snake, Food* food, GameBuffers* buffers);
+bool HasSnakeTouchRabbit(Snake* snake, Rabbit* rabbit);
+void GameLogic(Snake* snake, Rabbit* rabbit);
+void GameRender(Snake* snake, Rabbit* rabbit, GameBuffers* buffers);
 void MenuLogic();
 void MenuRender();
 void GameOverLogic();
@@ -34,11 +34,12 @@ void LoadMenu();
 void LoadGame();
 void LoadGameOver();
 void LoadScoreboard();
+void Setup();
 
 RenderTexture2D target;
 Snake* snake;
-Food food;
-Food wabbit;
+Rabbit rabbit;
+Rabbit wabbit;
 GameBuffers buffers;
 Shader crt_shader;
 int time_loc;
@@ -52,7 +53,6 @@ int main ()
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + BOTTOM_UI_HEIGHT, "Snake");
 	SetTargetFPS(FPS);
 
-	
 	snake = malloc(sizeof(Snake));
 	if (!snake)
 	{
@@ -61,7 +61,7 @@ int main ()
 	}
 	
 	InitSnake(snake);
-	FoodInit(&food);
+	RabbitInit(&rabbit);
 	
 	SearchAndSetResourceDir("resources");
 
@@ -70,11 +70,11 @@ int main ()
 	time_loc = GetShaderLocation(crt_shader, "uTime");
 
 	Texture wabbit_tex = LoadTexture("wabbit_256x256.png");
-	FoodBindTexture(&wabbit, wabbit_tex);
+	RabbitBindTexture(&wabbit, wabbit_tex);
 
 	// Load a texture from the resources directory
-	Texture food_tex = LoadTexture("wabbit_32x32.png");
-	FoodBindTexture(&food ,food_tex);
+	Texture rabbit_tex = LoadTexture("wabbit_32x32.png");
+	RabbitBindTexture(&rabbit , rabbit_tex);
 
 	Texture snake_tex = LoadTexture("snake_body_32x32.png");
 	BindSnakeTexture(snake, snake_tex);
@@ -101,7 +101,7 @@ int main ()
 		}
 	}
 
-	UnloadTexture(food.texture);
+	UnloadTexture(rabbit.texture);
 	UnloadTexture(snake->texture);
 	free(snake);
 	CloseWindow();
@@ -123,16 +123,16 @@ int CalculateIndex(Vector2* p)
 	return idx;
 }
 
-bool HasSnakeTouchFood(Snake* snake, Food* food)
+bool HasSnakeTouchRabbit(Snake* snake, Rabbit* rabbit)
 {
-	if ((int)snake->body[0].x == (int)food->position.x && (int)snake->body[0].y == (int)food->position.y)
+	if ((int)snake->body[0].x == (int)rabbit->position.x && (int)snake->body[0].y == (int)rabbit->position.y)
 	{
 		return true;
 	}
 	return false;
 }
 
-void GameLogic(Snake* snake, Food* food)
+void GameLogic(Snake* snake, Rabbit* rabbit)
 {
 	timer_update(&timer);
 	if (HasSnakeCollided(snake))
@@ -176,14 +176,14 @@ void GameLogic(Snake* snake, Food* food)
 	// 	snake->length += 1;
 	// }
 
-	if (HasSnakeTouchFood(snake, food))
+	if (HasSnakeTouchRabbit(snake, rabbit))
 	{
-		SnakeEatsFood(snake);
-		FoodResetLocation(food, snake);
+		SnakeEatsRabbit(snake);
+		RabbitResetLocation(rabbit, snake);
 	}
 
-	TraceLog(LOG_INFO, "SNAKE POS: {%f,%f}", snake->body[0].x, snake->body[0].y);
-	TraceLog(LOG_INFO, "FOOD  POS: {%f,%f}", food->position.x, food->position.y);
+	TraceLog(LOG_DEBUG, "SNAKE   POS: {%f,%f}", snake->body[0].x, snake->body[0].y);
+	TraceLog(LOG_DEBUG, "RABBIT  POS: {%f,%f}", rabbit->position.x, rabbit->position.y);
 
 	if (timer.time_accumulated >= timer.interval * timer.interval_scale)
 	{
@@ -193,17 +193,17 @@ void GameLogic(Snake* snake, Food* food)
 
 	if (timer.rabbit_move_time_accum >= timer.rabbit_interval)
 	{
-		FoodMove(food, snake);
+		RabbitMove(rabbit, snake);
 		timer.rabbit_move_time_accum = 0.0f;
 	}
 	
 }
 
-void GameRender(Snake* snake, Food* food, GameBuffers* buffers)
+void GameRender(Snake* snake, Rabbit* rabbit, GameBuffers* buffers)
 {
 	ClearBackground(SKYBLUE);
 	RenderSnake(snake);
-	FoodRender(food);
+	RabbitRender(rabbit);
 }
 
 void MenuLogic()
@@ -275,10 +275,10 @@ void LoadGame()
 	float time = GetTime();
 	SetShaderValue(crt_shader, time_loc, &time, SHADER_UNIFORM_FLOAT);
 
-	GameLogic(snake, &food);
+	GameLogic(snake, &rabbit);
 	BeginTextureMode(target);
 	ClearBackground(WHITE);
-	GameRender(snake, &food, &buffers);
+	GameRender(snake, &rabbit, &buffers);
 	EndTextureMode();
 
 	BeginDrawing();
@@ -292,4 +292,9 @@ void LoadGameOver()
 	BeginDrawing();
 	ClearBackground(SKYBLUE); 
 	EndDrawing();
+}
+
+void Setup()
+{
+
 }

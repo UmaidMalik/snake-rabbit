@@ -68,7 +68,7 @@ bool HasSnakeCollided(Snake* snake)
     return false;
 }
 
-void SnakeEatsFood(Snake* snake)
+void SnakeEatsRabbit(Snake* snake)
 {
     snake->length += 1;
 }

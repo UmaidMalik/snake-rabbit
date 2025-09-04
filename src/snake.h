@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef SNAKE_H
 #define SNAKE_H
 
@@ -19,7 +21,7 @@ typedef struct
 void MoveSnake(Snake* snake);
 void SetSnakeDirection(Snake* snake, Direction _dir);
 bool HasSnakeCollided(Snake* snake);
-void SnakeEatsFood(Snake* snake);
+void SnakeEatsRabbit(Snake* snake);
 void RenderSnake(Snake* snake);
 void BindSnakeTexture(Snake* snake, Texture texture);
 void InitSnake(Snake* snake);

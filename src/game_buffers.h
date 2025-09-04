@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef GAME_BUFFERS_H
 #define GAME_BUFFERS_H
 
