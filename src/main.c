@@ -70,16 +70,16 @@ int main ()
 		switch(game->game_state)
 		{
 			case MENU:
-			LoadMenu(&game);
+			LoadMenu(game);
 			break;
 			case GAME:
-			LoadGame(&game);
+			LoadGame(game);
 			break;
 		}
 	}
 
-	UnloadTexture(game->rabbit->texture);
-	UnloadTexture(game->snake->texture);
+	//UnloadTexture(game->rabbit->texture);
+	//UnloadTexture(game->snake->texture);
 	free(game->snake);
 	game->snake = NULL;
 	free(game);

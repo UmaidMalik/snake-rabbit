@@ -1,3 +1,4 @@
+#include <math.h>
 #include "game.h"
 #include "raylib.h"
 #include "snake.h"

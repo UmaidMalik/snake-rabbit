@@ -20,15 +20,16 @@
 #include "game_buffers.h"
 #include "game_state.h"
 #include "timer.h"
-#include "snake.h"
 #include "rabbit.h"
 #include "shader_handle.h"
+
+struct Snake;
 
 typedef struct
 {
 	GameBuffers* buffers;
 	GameState game_state;
-	Snake* snake;
+	struct Snake* snake;
 	Rabbit* rabbit;
 	Rabbit* wabbit;
 	Timer* timer;

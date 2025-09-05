@@ -4,7 +4,8 @@
 #define RABBIT_H
 
 #include "raylib.h"
-#include "snake.h"
+
+struct Snake;
 
 typedef struct
 {
@@ -15,7 +16,7 @@ typedef struct
 void Rabbit_Init(Rabbit* rabbit);
 void Rabbit_BindTexture(Rabbit* rabbit, Texture texture);
 void Rabbit_Render(Rabbit* rabbit);
-void Rabbit_ResetLocation(Rabbit* rabbit, Snake* snake);
-void Rabbit_Move(Rabbit* rabbit, Snake* snake);
+void Rabbit_ResetLocation(Rabbit* rabbit, struct Snake* snake);
+void Rabbit_Move(Rabbit* rabbit, struct Snake* snake);
 
 #endif
