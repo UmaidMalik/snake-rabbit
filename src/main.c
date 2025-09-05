@@ -19,6 +19,7 @@ static GameBuffers buffers;
 static GameState game_state;
 static Rabbit rabbit;
 static Rabbit wabbit;
+static Snake snake;
 
 int main ()
 {
@@ -30,12 +31,8 @@ int main ()
 	game->timer = &timer;
 	game->buffers = &buffers;
 	game->game_state = game_state;
-	game->snake = malloc(sizeof(Snake));
-	if (!game->snake)
-	{
-		TraceLog(LOG_ERROR, "Snake struct not allocated: out of memory");
-		exit(EXIT_FAILURE);
-	}
+	game->snake = &snake;
+
 	
 	game->rabbit = &rabbit;
 	game->wabbit = &wabbit;
@@ -78,10 +75,8 @@ int main ()
 		}
 	}
 
-	//UnloadTexture(game->rabbit->texture);
-	//UnloadTexture(game->snake->texture);
-	free(game->snake);
-	game->snake = NULL;
+	UnloadTexture(game->rabbit->texture);
+	UnloadTexture(game->snake->texture);
 	free(game);
 	game = NULL;
 	CloseWindow();
