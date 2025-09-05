@@ -18,7 +18,6 @@ void Cleanup();
 
 static Timer timer;
 static GameBuffers buffers;
-static GameState game_state;
 static Rabbit rabbit;
 static Rabbit wabbit;
 static Snake snake;
@@ -36,7 +35,6 @@ int main ()
 
 	game_ptr->timer = &timer;
 	game_ptr->buffers = &buffers;
-	game_ptr->game_state = game_state;
 	game_ptr->snake = &snake;
 
 	game_ptr->rabbit = &rabbit;
