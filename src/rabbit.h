@@ -5,7 +5,6 @@
 
 #include "raylib.h"
 #include "snake.h"
-#include "game.h"
 
 typedef struct
 {
