@@ -1,5 +1,8 @@
 #include "rabbit.h"
 #include "game_math.h"
+#include "game.h"
+#include "snake.h"
+#include "raylib.h"
 
 void Rabbit_Init(Rabbit* rabbit)
 {

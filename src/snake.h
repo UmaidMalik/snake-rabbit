@@ -10,7 +10,7 @@
 
 #define INIT_SNAKE_SIZE 3
 
-typedef struct
+typedef struct Snake
 {
     Vector2 body[GRID_WIDTH * GRID_HEIGHT];
     int length;

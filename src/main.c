@@ -1,12 +1,3 @@
-/*
-Raylib example file.
-This is an example main file for a simple raylib project.
-Use this as a starting point or replace it with your code.
-
-by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0/
-
-*/
-
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -17,287 +8,84 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "game.h"
 #include "timer.h"
 #include "game_buffers.h"
-#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
+#include "resource_dir.h"
 #include "game_state.h"
+#include "shader_handle.h"
 
-bool HasSnakeTouchRabbit(Snake* snake, Rabbit* rabbit);
-void GameLogic(Snake* snake, Rabbit* rabbit);
-void GameRender(Snake* snake, Rabbit* rabbit, GameBuffers* buffers);
-void MenuLogic();
-void MenuRender();
-void GameOverLogic();
-void GameOverRender();
-void DrawBottomUI(GameBuffers* buffers);
-void DrawShader(RenderTexture2D* target, Shader* shader);
-
-void LoadMenu();
-void LoadGame();
-void LoadGameOver();
-void LoadScoreboard();
 void Setup();
 
-RenderTexture2D target;
-Snake* snake;
-Rabbit rabbit;
-Rabbit wabbit;
-GameBuffers buffers;
-Shader crt_shader;
-int time_loc;
-
-Timer timer;
-GameState game_state;
+static Timer timer;
+static GameBuffers buffers;
+static GameState game_state;
+static Rabbit rabbit;
+static Rabbit wabbit;
 
 int main ()
 {
+	Game* game = malloc(sizeof(Game));
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + BOTTOM_UI_HEIGHT, "Snake");
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + BOTTOM_UI_HEIGHT, "Snake & Rabbit");
 	SetTargetFPS(FPS);
 
-	snake = malloc(sizeof(Snake));
-	if (!snake)
+	game->timer = &timer;
+	game->buffers = &buffers;
+	game->game_state = game_state;
+	game->snake = malloc(sizeof(Snake));
+	if (!game->snake)
 	{
 		TraceLog(LOG_ERROR, "Snake struct not allocated: out of memory");
 		exit(EXIT_FAILURE);
 	}
 	
-	Snake_Init(snake);
-	Rabbit_Init(&rabbit);
+	game->rabbit = &rabbit;
+	game->wabbit = &wabbit;
+	Snake_Init(game->snake);
+	Rabbit_Init(game->rabbit);
 	
 	SearchAndSetResourceDir("resources");
 
-	target = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
-	crt_shader = LoadShader(0, "crt_shader.fs");
-	time_loc = GetShaderLocation(crt_shader, "uTime");
+	ShaderHandle shader_handle;
+	game->shader_handle = &shader_handle;
+	game->shader_handle->target = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+	game->shader_handle->crt_shader = LoadShader(0, "crt_shader.fs");
+	game->shader_handle->time_loc = GetShaderLocation(game->shader_handle->crt_shader, "uTime");
 
 	Texture wabbit_tex = LoadTexture("wabbit_256x256.png");
-	Rabbit_BindTexture(&wabbit, wabbit_tex);
+	Rabbit_BindTexture(game->wabbit, wabbit_tex);
 
-	// Load a texture from the resources directory
 	Texture rabbit_tex = LoadTexture("wabbit_32x32.png");
-	Rabbit_BindTexture(&rabbit , rabbit_tex);
+	Rabbit_BindTexture(game->rabbit, rabbit_tex);
 
 	Texture snake_tex = LoadTexture("snake_body_32x32.png");
-	Snake_BindTexture(snake, snake_tex);
+	Snake_BindTexture(game->snake, snake_tex);
 	
-	int random_idx = 0;
-	timer.interval =  0.150f;
-	timer.rabbit_interval = 0.3f; // 0.15 very hard 0.3 hard 0.600f medium 1.600f easy
-	timer.interval_scale = 1.0f;
+	game->timer->interval =  0.150f;
+	game->timer->rabbit_interval = 0.3f; // 0.15 very hard 0.3 hard 0.600f medium 1.600f easy
+	game->timer->interval_scale = 1.0f;
 
-	game_state = MENU;
+	game->game_state = MENU;
 
 	while (!WindowShouldClose())
 	{
-		switch(game_state)
+		switch(game->game_state)
 		{
 			case MENU:
-			LoadMenu();
+			LoadMenu(game);
 			break;
 			case GAME:
-			LoadGame();
+			LoadGame(game);
 			break;
 		}
 	}
 
-	UnloadTexture(rabbit.texture);
-	UnloadTexture(snake->texture);
-	free(snake);
+	//UnloadTexture(game->rabbit->texture);
+	//UnloadTexture(game->snake->texture);
+	free(game->snake);
+	game->snake = NULL;
+	free(game);
+	game = NULL;
 	CloseWindow();
 	return 0;
-}
-
-Vector2 Game_CalculatePosition(int idx)
-{
-    float px = idx % GRID_WIDTH;
-	float py = idx / GRID_WIDTH;
-	Vector2 p = {px, py};
-	return p;
-}
-
-int Game_CalculateIndex(Vector2* p)
-{
-	int idx = 0;
-	idx = p->x + (GRID_WIDTH * p->y);
-	return idx;
-}
-
-bool HasSnakeTouchRabbit(Snake* snake, Rabbit* rabbit)
-{
-	if ((int)snake->body[0].x == (int)rabbit->position.x && (int)snake->body[0].y == (int)rabbit->position.y)
-	{
-		return true;
-	}
-	return false;
-}
-
-void GameLogic(Snake* snake, Rabbit* rabbit)
-{
-	Timer_Update(&timer);
-	if (Snake_HasCollided(snake))
-	{
-		Snake_Init(snake);
-		game_state = MENU;
-		timer.interval_scale = 1.0f;
-	}
-	if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
-	{
-		Snake_SetDirection(snake, WEST);
-	}
-	if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
-	{
-		Snake_SetDirection(snake, EAST);
-	}
-	if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
-	{
-		Snake_SetDirection(snake, NORTH);
-	}
-	if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
-	{
-		Snake_SetDirection(snake, SOUTH);
-	}
-	if (IsKeyDown(KEY_SPACE))
-	{
-		timer.interval_scale = 0.25f;
-	}
-	if (IsKeyReleased(KEY_SPACE))
-	{
-		timer.interval_scale = 1.0f;
-	}
-	if (IsKeyPressed(KEY_Q))
-	{
-		game_state = MENU;
-		timer.interval_scale = 1.0f;
-	}
-	// TODO: removed this below  
-	// if (IsKeyPressed(KEY_SPACE))
-	// {
-	// 	snake->length += 1;
-	// }
-
-	if (HasSnakeTouchRabbit(snake, rabbit))
-	{
-		Snake_EatsRabbit(snake);
-		Rabbit_ResetLocation(rabbit, snake);
-	}
-
-	TraceLog(LOG_DEBUG, "SNAKE   POS: {%f,%f}", snake->body[0].x, snake->body[0].y);
-	TraceLog(LOG_DEBUG, "RABBIT  POS: {%f,%f}", rabbit->position.x, rabbit->position.y);
-
-	if (timer.time_accumulated >= timer.interval * timer.interval_scale)
-	{
-		Snake_Move(snake);
-		timer.time_accumulated = 0.0f;
-	}
-
-		float dx = rabbit->position.x - snake->body[0].x;
-		float dy = rabbit->position.y - snake->body[0].y;
-		dx *= dx;
-		dy *= dy;
-		float dist = (float) sqrt(dx + dy);
-
-	if (timer.rabbit_move_time_accum >= timer.rabbit_interval)
-	{
-		if (dist < 4.0f) {
-		Rabbit_Move(rabbit, snake);
-		timer.rabbit_move_time_accum = 0.0f;
-		}
-	}
-	
-}
-
-void GameRender(Snake* snake, Rabbit* rabbit, GameBuffers* buffers)
-{
-	ClearBackground(SKYBLUE);
-	Snake_Render(snake);
-	Rabbit_Render(rabbit);
-}
-
-void MenuLogic()
-{
-	Vector2 mouse_pos = GetMousePosition();
-	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) 
-	&& mouse_pos.x >= 32 
-	&& mouse_pos.x <= 222
-	&& mouse_pos.y >= 176
-	&& mouse_pos.y <= 230)
-	{
-		game_state = GAME;
-	}
-}
-
-void MenuRender()
-{
-	ClearBackground(SKYBLUE);
-	DrawText("SNAKE", 32, 32, 128, DARKBLUE);
-	DrawText("PLAY", 32 + 8, 176, 64, DARKBLUE);
-	DrawTexture(wabbit.texture, 256, 196, WHITE);
-}
-
-
-void DrawBottomUI(GameBuffers* buffers)
-{
-	// bottom UI
-	DrawRectangle(0, SCREEN_HEIGHT, SCREEN_WIDTH, 32, DARKBLUE);
-	// fps render
-	GameBuffer_UpdateFPS(buffers, GetFPS());
-	DrawText(buffers->fps, TILE_SIZE, BOTTOM_UI_TEXT_HEIGHT, 18, WHITE);
-	// score render
-	GameBuffer_UpdateScore(buffers, GAME_SCORE);
-	DrawText(buffers->score, TILE_SIZE * 4, BOTTOM_UI_TEXT_HEIGHT, 18, WHITE);
-	// high score render
-	GameBuffer_UpdateHighScore(buffers, 0);
-	DrawText(buffers->high_score, TILE_SIZE * 8, BOTTOM_UI_TEXT_HEIGHT, 18, WHITE);
-}
-
-void DrawShader(RenderTexture2D* target, Shader* shader)
-{
-	BeginShaderMode(*shader);
-	DrawTextureRec(
-		target->texture,
-		(Rectangle){ 0, 0, (float)target->texture.width, -(float)target->texture.height },
-		(Vector2){ 0, 0 },
-		WHITE
-	);
-	EndShaderMode();
-}
-
-void LoadMenu()
-{
-	float time = GetTime();
-	SetShaderValue(crt_shader, time_loc, &time, SHADER_UNIFORM_FLOAT);
-
-	MenuLogic();
-	BeginTextureMode(target);
-	ClearBackground(WHITE);
-	MenuRender();
-	EndTextureMode();
-	BeginDrawing();
-	DrawShader(&target, &crt_shader);
-	EndDrawing();
-}
-
-void LoadGame()
-{
-	float time = GetTime();
-	SetShaderValue(crt_shader, time_loc, &time, SHADER_UNIFORM_FLOAT);
-
-	GameLogic(snake, &rabbit);
-	BeginTextureMode(target);
-	ClearBackground(WHITE);
-	GameRender(snake, &rabbit, &buffers);
-	EndTextureMode();
-
-	BeginDrawing();
-	DrawShader(&target, &crt_shader);
-	DrawBottomUI(&buffers);
-	EndDrawing();
-}
-
-void LoadGameOver()
-{
-	BeginDrawing();
-	ClearBackground(SKYBLUE); 
-	EndDrawing();
 }
 
 void Setup()
