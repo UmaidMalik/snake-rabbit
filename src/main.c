@@ -11,6 +11,7 @@
 #include "resource_dir.h"
 #include "game_state.h"
 #include "shader_handle.h"
+#include "window_setting.h"
 
 void Setup();
 void Loop();
@@ -23,13 +24,14 @@ static Rabbit wabbit;
 static Snake snake;
 static Game game;
 static Game* game_ptr;
-
+static WindowSetting window_setting;
 
 int main ()
 {
 	game_ptr = &game;
+	WindowSetting_Init(window_setting);
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + BOTTOM_UI_HEIGHT, "Snake & Rabbit");
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + BOTTOM_UI_HEIGHT, window_setting.title);
 	SearchAndSetResourceDir("resources");
 	SetTargetFPS(FPS);
 
