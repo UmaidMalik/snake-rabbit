@@ -67,7 +67,7 @@ void Game_GameLogic(Game* game)
 	if (Game_HasSnakeTouchRabbit(game))
 	{
 		Snake_EatsRabbit(game);
-		Rabbit_ResetLocation(game->rabbit, game->snake);
+		Rabbit_ResetLocation(game);
 	}
 
 	TraceLog(LOG_DEBUG, "SNAKE   POS: {%f,%f}", game->snake->body[0].x, game->snake->body[0].y);
@@ -88,7 +88,7 @@ void Game_GameLogic(Game* game)
 	if (game->timer->rabbit_move_time_accum >= game->timer->rabbit_interval)
 	{
 		if (dist < 4.0f) {
-			Rabbit_Move(game->rabbit, game->snake);
+			Rabbit_Move(game);
 			game->timer->rabbit_move_time_accum = 0.0f;
 		}
 	}
@@ -98,7 +98,7 @@ void Game_GameRender(Game* game)
 {
 	ClearBackground(SKYBLUE);
 	Snake_Render(game);
-	Rabbit_Render(game->rabbit);
+	Rabbit_Render(game);
 }
 
 void Game_MenuLogic(Game* game)

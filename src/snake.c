@@ -47,7 +47,8 @@ void Snake_Move(Game* game)
 
 void Snake_SetDirection(Snake* snake, Direction direction)
 {
-    if (
+    if 
+    (
         (snake->dir == NORTH && direction == SOUTH)
         || (snake->dir == SOUTH && direction == NORTH)
         || (snake->dir == WEST && direction == EAST)
@@ -88,7 +89,8 @@ void Snake_Render(Game* game)
         snake->texture,
         game->window_setting->tile_size * snake->body[0].x,
         game->window_setting->tile_size * snake->body[0].y,
-        GOLD);
+        GOLD
+    );
     for (int i = 1; i < snake->length; i++)
     {
         DrawTexture
