@@ -5,8 +5,9 @@
 
 void Snake_Init(Game* game)
 {
+    Vector2 v_body[game->window_setting->grid_width * game->window_setting->grid_height];
     Snake* snake = game->snake;
-    snake->body = Vector2[game->window_setting->grid_width * game->window_setting->grid_height];
+    snake->body = v_body;
     snake->body[0].x = 10;
     snake->body[0].y = game->window_setting->grid_height / 2;
     snake->length = INIT_SNAKE_SIZE;
@@ -45,8 +46,9 @@ void Snake_Move(Game* game)
     }
 }
 
-void Snake_SetDirection(Snake* snake, Direction direction)
+void Snake_SetDirection(Game* game, Direction direction)
 {
+    Snake* snake = game->snake;
     if 
     (
         (snake->dir == NORTH && direction == SOUTH)
@@ -59,8 +61,9 @@ void Snake_SetDirection(Snake* snake, Direction direction)
     snake->dir = direction;
 }
 
-bool Snake_HasCollided(Snake* snake)
+bool Snake_HasCollided(Game* game)
 {
+    Snake* snake = game->snake;
     Vector2 head = snake->body[0];
 
     if (snake->length > 4)
@@ -70,15 +73,15 @@ bool Snake_HasCollided(Snake* snake)
             if ((head.x == snake->body[i].x) && (head.y == snake->body[i].y))
             {
                 return true;
-            } 
+            }
         }
     }  
     return false;
 }
 
-void Snake_EatsRabbit(Snake* snake)
+void Snake_EatsRabbit(Game* game)
 {
-    snake->length += 1;
+    game->snake->length += 1;
 }
 
 void Snake_Render(Game* game)

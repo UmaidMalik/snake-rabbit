@@ -47,7 +47,7 @@ int main ()
 	game.rabbit = &rabbit;
 	game.wabbit = &wabbit;
 	Snake_Init(&game);
-	Rabbit_Init(game.rabbit);
+	Rabbit_Init(&game);
 
 	ShaderHandle shader_handle;
 	game.shader_handle = &shader_handle;
@@ -69,10 +69,10 @@ int main ()
 		);
 
 	Texture wabbit_tex = LoadTexture("wabbit_256x256.png");
-	Rabbit_BindTexture(game.wabbit, wabbit_tex);
+	Rabbit_BindTexture(&game, wabbit_tex);
 
 	Texture rabbit_tex = LoadTexture("wabbit_32x32.png");
-	Rabbit_BindTexture(game.rabbit, rabbit_tex);
+	Rabbit_BindTexture(&game, rabbit_tex);
 
 	Texture snake_tex = LoadTexture("snake_body_32x32.png");
 	Snake_BindTexture(&game, snake_tex);

@@ -15,7 +15,7 @@
 
 struct Snake;
 
-typedef struct
+typedef struct Game
 {
 	GameBuffers* buffers;
 	GameState game_state;

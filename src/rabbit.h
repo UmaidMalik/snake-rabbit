@@ -3,11 +3,11 @@
 #ifndef RABBIT_H
 #define RABBIT_H
 
+typedef struct Game Game;
+
 #include "raylib.h"
 
-typedef struct Game;
-
-typedef struct
+typedef struct Rabbit
 {
     Vector2 position;
     Texture texture;

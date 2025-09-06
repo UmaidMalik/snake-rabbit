@@ -3,7 +3,7 @@
 #ifndef GAME_BUFFERS_H
 #define GAME_BUFFERS_H
 
-typedef struct
+typedef struct GameBuffers
 {
     char score[32];
     char fps[32];

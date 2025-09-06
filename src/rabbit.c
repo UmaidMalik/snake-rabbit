@@ -6,6 +6,8 @@
 
 void Rabbit_Init(Game* game)
 {
+    int grid_width = game->window_setting->grid_width;
+    int grid_height = game->window_setting->grid_height;
     game->rabbit->position =
         Game_CalculatePosition
         (
@@ -13,7 +15,7 @@ void Rabbit_Init(Game* game)
             GetRandomValue
             (
                 0,
-                (game->window_setting->grid_width * game->window_setting->grid_height) - 1
+                (grid_width * grid_height) - 1
             )
         );
 }
