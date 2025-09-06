@@ -3,18 +3,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define GRID_WIDTH 20
-#define GRID_HEIGHT 15
-#define TILE_SIZE 32
-#define FPS 60
-
-#define BOTTOM_UI_HEIGHT 32
-#define BOTTOM_UI_Y_OFFSET 8
-#define BOTTOM_UI_TEXT_HEIGHT (BOTTOM_UI_Y_OFFSET + SCREEN_HEIGHT)
 #define GAME_SCORE (game->snake->length - INIT_SNAKE_SIZE)
-
-#define SCREEN_WIDTH (GRID_WIDTH * TILE_SIZE)
-#define SCREEN_HEIGHT (GRID_HEIGHT * TILE_SIZE)
 
 #include "raylib.h"
 #include "game_buffers.h"
@@ -22,6 +11,7 @@
 #include "timer.h"
 #include "rabbit.h"
 #include "shader_handle.h"
+#include "window_setting.h"
 
 struct Snake;
 
@@ -34,10 +24,11 @@ typedef struct
 	Rabbit* wabbit;
 	Timer* timer;
 	ShaderHandle* shader_handle;
+    WindowSetting* window_setting;
 } Game;
 
-Vector2 Game_CalculatePosition(int idx);
-int Game_CalculateIndex(Vector2* p);
+Vector2 Game_CalculatePosition(Game* game, int idx);
+int Game_CalculateIndex(Game* game, Vector2* p);
 
 void Game_GameLogic(Game* game);
 void Game_GameRender(Game* game);

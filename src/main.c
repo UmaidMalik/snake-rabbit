@@ -29,43 +29,59 @@ static WindowSetting window_setting;
 int main ()
 {
 	game_ptr = &game;
-	WindowSetting_Init(window_setting);
+	game.window_setting = &window_setting;
+	WindowSetting_Init(&window_setting);
+	//GameWindow_Init();
+	//GameSetting_Init();
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + BOTTOM_UI_HEIGHT, window_setting.title);
+	InitWindow(window_setting.screen_width, 
+		window_setting.screen_height + window_setting.bottom_ui_height,
+		window_setting.title);
 	SearchAndSetResourceDir("resources");
-	SetTargetFPS(FPS);
+	SetTargetFPS(game.window_setting->fps);
 
-	game_ptr->timer = &timer;
-	game_ptr->buffers = &buffers;
-	game_ptr->snake = &snake;
+	game.timer = &timer;
+	game.buffers = &buffers;
+	game.snake = &snake;
 
-	game_ptr->rabbit = &rabbit;
-	game_ptr->wabbit = &wabbit;
-	Snake_Init(game_ptr->snake);
-	Rabbit_Init(game_ptr->rabbit);
-	
-	
+	game.rabbit = &rabbit;
+	game.wabbit = &wabbit;
+	Snake_Init(&game);
+	Rabbit_Init(game.rabbit);
 
 	ShaderHandle shader_handle;
-	game_ptr->shader_handle = &shader_handle;
-	game_ptr->shader_handle->target = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
-	game_ptr->shader_handle->crt_shader = LoadShader(0, "crt_shader.fs");
-	game_ptr->shader_handle->time_loc = GetShaderLocation(game_ptr->shader_handle->crt_shader, "uTime");
+	game.shader_handle = &shader_handle;
+
+	game.shader_handle->target =
+		LoadRenderTexture
+		(
+			window_setting.screen_width, 
+			window_setting.screen_height
+		);
+
+	game.shader_handle->crt_shader =
+		LoadShader(0, "crt_shader.fs");
+
+	game.shader_handle->time_loc =
+		GetShaderLocation
+		(
+			game.shader_handle->crt_shader, "uTime"
+		);
 
 	Texture wabbit_tex = LoadTexture("wabbit_256x256.png");
-	Rabbit_BindTexture(game_ptr->wabbit, wabbit_tex);
+	Rabbit_BindTexture(game.wabbit, wabbit_tex);
 
 	Texture rabbit_tex = LoadTexture("wabbit_32x32.png");
-	Rabbit_BindTexture(game_ptr->rabbit, rabbit_tex);
+	Rabbit_BindTexture(game.rabbit, rabbit_tex);
 
 	Texture snake_tex = LoadTexture("snake_body_32x32.png");
-	Snake_BindTexture(game_ptr->snake, snake_tex);
+	Snake_BindTexture(&game, snake_tex);
 	
-	game_ptr->timer->interval =  0.150f;
-	game_ptr->timer->rabbit_interval = 0.3f; // 0.15 very hard 0.3 hard 0.600f medium 1.600f easy
-	game_ptr->timer->interval_scale = 1.0f;
+	game.timer->interval =  0.150f;
+	game.timer->rabbit_interval = 0.3f; // 0.15 very hard 0.3 hard 0.600f medium 1.600f easy
+	game.timer->interval_scale = 1.0f;
 
-	game_ptr->game_state = MENU;
+	game.game_state = MENU;
 
 	Loop();
 
@@ -82,13 +98,13 @@ void Loop()
 {
 	while (!WindowShouldClose())
 	{
-		switch(game_ptr->game_state)
+		switch(game.game_state)
 		{
 			case MENU:
-			LoadMenu(game_ptr);
+			LoadMenu(&game);
 			break;
 			case GAME:
-			LoadGame(game_ptr);
+			LoadGame(&game);
 			break;
 		}
 	}
@@ -96,7 +112,7 @@ void Loop()
 
 void Cleanup()
 {
-	UnloadTexture(game_ptr->rabbit->texture);
-	UnloadTexture(game_ptr->snake->texture);
+	UnloadTexture(game.rabbit->texture);
+	UnloadTexture(game.snake->texture);
 	CloseWindow();
 }

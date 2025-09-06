@@ -12,18 +12,18 @@
 
 typedef struct Snake
 {
-    Vector2 body[GRID_WIDTH * GRID_HEIGHT];
+    Vector2* body;
     int length;
     Direction dir;
     Texture texture;
 } Snake;
 
-void Snake_Move(Snake* snake);
-void Snake_SetDirection(Snake* snake, Direction _dir);
-bool Snake_HasCollided(Snake* snake);
-void Snake_EatsRabbit(Snake* snake);
-void Snake_Render(Snake* snake);
-void Snake_BindTexture(Snake* snake, Texture texture);
-void Snake_Init(Snake* snake);
+void Snake_Move(Game* game);
+void Snake_SetDirection(Game* game, Direction _dir);
+bool Snake_HasCollided(Game* game);
+void Snake_EatsRabbit(Game* game);
+void Snake_Render(Game* game);
+void Snake_BindTexture(Game* game, Texture texture);
+void Snake_Init(Game* game);
 
 #endif
