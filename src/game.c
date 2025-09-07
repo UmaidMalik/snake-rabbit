@@ -243,7 +243,9 @@ void Game_HandleInput(Game* game)
 			gamepad_id = i;
 			break;
 		}
-	}
+	}	
+	TraceLog(LOG_INFO, "raylib version: %s", RAYLIB_VERSION);
+
 	if (!direction_changed && Game_InputInteract(IsKeyPressed, IsGamepadButtonPressed, LEFT_KEYS, 2, LEFT_BUTTONS, 1, gamepad_id))
 	{
 		Snake_SetDirection(game, WEST);
