@@ -3,20 +3,22 @@
 #ifndef RABBIT_H
 #define RABBIT_H
 
+typedef struct Game Game;
+
 #include "raylib.h"
 
-struct Snake;
-
-typedef struct
+typedef struct Rabbit
 {
     Vector2 position;
     Texture texture;
 } Rabbit;
 
-void Rabbit_Init(Rabbit* rabbit);
+void Rabbit_Init(Game* game);
 void Rabbit_BindTexture(Rabbit* rabbit, Texture texture);
-void Rabbit_Render(Rabbit* rabbit);
-void Rabbit_ResetLocation(Rabbit* rabbit, struct Snake* snake);
-void Rabbit_Move(Rabbit* rabbit, struct Snake* snake);
+void Rabbit_Render(Game* game);
+void Rabbit_ResetLocation(Game* game);
+void Rabbit_Move(Game* game);
 
 #endif
+
+// shader_handle.h

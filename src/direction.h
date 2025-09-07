@@ -3,7 +3,7 @@
 #ifndef DIRECTION_H
 #define DIRECTION_H
 
-typedef enum
+typedef enum Direction
 {
     NORTH,
     SOUTH,

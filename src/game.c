@@ -4,60 +4,33 @@
 #include "snake.h"
 #include "rabbit.h"
 #include "shader_handle.h"
+#include <stddef.h>
 
-Vector2 Game_CalculatePosition(int idx)
+Vector2 Game_CalculatePosition(Game* game, int idx)
 {
-	int px = idx % GRID_WIDTH;
-	int py = idx / GRID_WIDTH;
+	int px = idx % game->window_setting->grid_width;
+	int py = idx / game->window_setting->grid_width;
 	Vector2 p = { (float)px, (float)py };
 	return p;
 }
 
-int Game_CalculateIndex(Vector2* p)
+int Game_CalculateIndex(Game* game, Vector2* p)
 {
 	int idx = 0;
-	idx = p->x + (GRID_WIDTH * p->y);
+	idx = p->x + (game->window_setting->grid_width * p->y);
 	return idx;
 }
 
 void Game_GameLogic(Game* game)
 {
 	Timer_Update(game->timer);
-	if (Snake_HasCollided(game->snake))
+	if (Snake_HasCollided(game))
 	{
-		Snake_Init(game->snake);
+		Snake_Init(game);
 		game->game_state = MENU;
 		game->timer->interval_scale = 1.0f;
 	}
-	if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
-	{
-		Snake_SetDirection(game->snake, WEST);
-	}
-	if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
-	{
-		Snake_SetDirection(game->snake, EAST);
-	}
-	if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
-	{
-		Snake_SetDirection(game->snake, NORTH);
-	}
-	if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
-	{
-		Snake_SetDirection(game->snake, SOUTH);
-	}
-	if (IsKeyDown(KEY_SPACE))
-	{
-		game->timer->interval_scale = 0.25f;
-	}
-	if (IsKeyReleased(KEY_SPACE))
-	{
-		game->timer->interval_scale = 1.0f;
-	}
-	if (IsKeyPressed(KEY_Q))
-	{
-		game->game_state = MENU;
-		game->timer->interval_scale = 1.0f;
-	}
+	Game_HandleInput(game);
 	// TODO: removed this below  
 	// if (IsKeyPressed(KEY_SPACE))
 	// {
@@ -66,8 +39,8 @@ void Game_GameLogic(Game* game)
 
 	if (Game_HasSnakeTouchRabbit(game))
 	{
-		Snake_EatsRabbit(game->snake);
-		Rabbit_ResetLocation(game->rabbit, game->snake);
+		Snake_EatsRabbit(game);
+		Rabbit_ResetLocation(game);
 	}
 
 	TraceLog(LOG_DEBUG, "SNAKE   POS: {%f,%f}", game->snake->body[0].x, game->snake->body[0].y);
@@ -75,7 +48,7 @@ void Game_GameLogic(Game* game)
 
 	if (game->timer->time_accumulated >= game->timer->interval * game->timer->interval_scale)
 	{
-		Snake_Move(game->snake);
+		Snake_Move(game);
 		game->timer->time_accumulated = 0.0f;
 	}
 
@@ -88,7 +61,7 @@ void Game_GameLogic(Game* game)
 	if (game->timer->rabbit_move_time_accum >= game->timer->rabbit_interval)
 	{
 		if (dist < 4.0f) {
-			Rabbit_Move(game->rabbit, game->snake);
+			Rabbit_Move(game);
 			game->timer->rabbit_move_time_accum = 0.0f;
 		}
 	}
@@ -97,8 +70,8 @@ void Game_GameLogic(Game* game)
 void Game_GameRender(Game* game)
 {
 	ClearBackground(SKYBLUE);
-	Snake_Render(game->snake);
-	Rabbit_Render(game->rabbit);
+	Snake_Render(game);
+	Rabbit_Render(game);
 }
 
 void Game_MenuLogic(Game* game)
@@ -124,7 +97,11 @@ void Game_MenuRender(Game* game)
 
 bool Game_HasSnakeTouchRabbit(Game* game)
 {
-	if ((int)game->snake->body[0].x == (int)game->rabbit->position.x && (int)game->snake->body[0].y == (int)game->rabbit->position.y)
+	if
+	(
+		(int)game->snake->body[0].x == (int)game->rabbit->position.x
+		&& (int)game->snake->body[0].y == (int)game->rabbit->position.y
+	)
 	{
 		return true;
 	}
@@ -134,7 +111,13 @@ bool Game_HasSnakeTouchRabbit(Game* game)
 void LoadMenu(Game* game)
 {
 	float time = GetTime();
-	SetShaderValue(game->shader_handle->crt_shader, game->shader_handle->time_loc, &time, SHADER_UNIFORM_FLOAT);
+	SetShaderValue
+	(
+		game->shader_handle->crt_shader,
+		game->shader_handle->time_loc,
+		&time,
+		SHADER_UNIFORM_FLOAT
+	);
 
 	Game_MenuLogic(game);
 	BeginTextureMode(game->shader_handle->target);
@@ -149,7 +132,13 @@ void LoadMenu(Game* game)
 void LoadGame(Game* game)
 {
 	float time = GetTime();
-	SetShaderValue(game->shader_handle->crt_shader, game->shader_handle->time_loc, &time, SHADER_UNIFORM_FLOAT);
+	SetShaderValue
+	(
+		game->shader_handle->crt_shader,
+		game->shader_handle->time_loc,
+		&time,
+		SHADER_UNIFORM_FLOAT
+	);
 
 	Game_GameLogic(game);
 	BeginTextureMode(game->shader_handle->target);
@@ -166,30 +155,108 @@ void LoadGame(Game* game)
 void DrawBottomUI(Game* game)
 {
 	// bottom UI
-	DrawRectangle(0, SCREEN_HEIGHT, SCREEN_WIDTH, 32, DARKBLUE);
+	DrawRectangle
+	(
+		0,
+		game->window_setting->screen_height,
+		game->window_setting->screen_width,
+		32,
+		DARKBLUE
+	);
+
 	// fps render
 	GameBuffer_UpdateFPS(game->buffers, GetFPS());
-	DrawText(game->buffers->fps, TILE_SIZE, BOTTOM_UI_TEXT_HEIGHT, 18, WHITE);
+	DrawText
+	(
+		game->buffers->fps,
+		game->window_setting->tile_size,
+		game->window_setting->bottom_ui_text_height,
+		18,
+		WHITE);
+
 	// score render
 	GameBuffer_UpdateScore(game->buffers, GAME_SCORE);
-	DrawText(game->buffers->score, TILE_SIZE * 4, BOTTOM_UI_TEXT_HEIGHT, 18, WHITE);
+	DrawText
+	(
+		game->buffers->score,
+		game->window_setting->tile_size * 4,
+		game->window_setting->bottom_ui_text_height,
+		18,
+		WHITE
+	);
+
 	// high score render
 	GameBuffer_UpdateHighScore(game->buffers, 0);
-	DrawText(game->buffers->high_score, TILE_SIZE * 8, BOTTOM_UI_TEXT_HEIGHT, 18, WHITE);
+	DrawText
+	(
+		game->buffers->high_score,
+		game->window_setting->tile_size * 8,
+		game->window_setting->bottom_ui_text_height,
+		18,
+		WHITE
+	);
 }
 
 void DrawShader(Game* game)
 {
 	BeginShaderMode(game->shader_handle->crt_shader);
-	DrawTextureRec(
+	DrawTextureRec
+	(
 	 	game->shader_handle->target.texture,
-		(Rectangle) {
-		0, 0, (float)game->shader_handle->target.texture.width, -(float)game->shader_handle->target.texture.height
-	},
-		(Vector2) {
-		0, 0
-	},
+		(Rectangle)
+		{
+			0,
+			0,
+			(float)game->shader_handle->target.texture.width,
+			-(float)game->shader_handle->target.texture.height
+		},
+		(Vector2)
+		{
+			0, 0
+		},
 		WHITE
 	);
 	EndShaderMode();
+}
+
+void Game_HandleInput(Game* game)
+{
+	int gamepad_id = 0;
+	for (size_t i = 0; i < 5; i++)
+	{	
+		if (IsGamepadAvailable(i))
+		{
+			gamepad_id = i;
+			break;
+		}
+	}
+	if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_LEFT))
+	{
+		Snake_SetDirection(game, WEST);
+	}
+	if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_RIGHT))
+	{
+		Snake_SetDirection(game, EAST);
+	}
+	if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_UP))
+	{
+		Snake_SetDirection(game, NORTH);
+	}
+	if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_DOWN))
+	{
+		Snake_SetDirection(game, SOUTH);
+	}
+	if (IsKeyDown(KEY_SPACE) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
+	{
+		game->timer->interval_scale = 0.25f;
+	}
+	if (IsKeyReleased(KEY_SPACE) || IsGamepadButtonReleased(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
+	{
+		game->timer->interval_scale = 1.0f;
+	}
+	if (IsKeyPressed(KEY_Q) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_MIDDLE_RIGHT))
+	{
+		game->game_state = MENU;
+		game->timer->interval_scale = 1.0f;
+	}
 }

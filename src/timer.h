@@ -3,7 +3,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-typedef struct
+typedef struct Timer
 {
     float dt;
     float time_accumulated;
