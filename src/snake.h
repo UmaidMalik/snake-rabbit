@@ -23,7 +23,7 @@ void Snake_SetDirection(Game* game, Direction _dir);
 bool Snake_HasCollided(Game* game);
 void Snake_EatsRabbit(Game* game);
 void Snake_Render(Game* game);
-void Snake_BindTexture(Game* game, Texture texture);
+void Snake_BindTexture(Snake* snake, Texture texture);
 void Snake_Init(Game* game);
 
 #endif

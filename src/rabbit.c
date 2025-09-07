@@ -20,9 +20,9 @@ void Rabbit_Init(Game* game)
         );
 }
 
-void Rabbit_BindTexture(Game* game, Texture texture)
+void Rabbit_BindTexture(Rabbit* rabbit, Texture texture)
 {
-    game->rabbit->texture = texture;
+    rabbit->texture = texture;
 }
 
 void Rabbit_Render(Game* game)
@@ -40,7 +40,7 @@ void Rabbit_ResetLocation(Game* game)
     bool flag = true;
     int count = 0;
     int grid_width = game->window_setting->grid_width;
-    int grid_height = game->window_setting->grid_width;
+    int grid_height = game->window_setting->grid_height;
     while (flag && count < max_tries)
     {
         flag = false;

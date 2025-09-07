@@ -28,11 +28,8 @@ static WindowSetting window_setting;
 
 int main ()
 {
-	game_ptr = &game;
 	game.window_setting = &window_setting;
-	WindowSetting_Init(&window_setting);
-	//GameWindow_Init();
-	//GameSetting_Init();
+	WindowSetting_Init(game.window_setting);
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 	InitWindow(window_setting.screen_width, 
 		window_setting.screen_height + window_setting.bottom_ui_height,
@@ -43,6 +40,11 @@ int main ()
 	game.timer = &timer;
 	game.buffers = &buffers;
 	game.snake = &snake;
+
+	int grid_width = game.window_setting->grid_width;
+	int grid_height = game.window_setting->grid_height;
+	Vector2 v_body[grid_width * grid_height];
+	game.snake->body = v_body;
 
 	game.rabbit = &rabbit;
 	game.wabbit = &wabbit;
@@ -69,13 +71,13 @@ int main ()
 		);
 
 	Texture wabbit_tex = LoadTexture("wabbit_256x256.png");
-	Rabbit_BindTexture(&game, wabbit_tex);
+	Rabbit_BindTexture(game.wabbit, wabbit_tex);
 
 	Texture rabbit_tex = LoadTexture("wabbit_32x32.png");
-	Rabbit_BindTexture(&game, rabbit_tex);
+	Rabbit_BindTexture(game.rabbit, rabbit_tex);
 
 	Texture snake_tex = LoadTexture("snake_body_32x32.png");
-	Snake_BindTexture(&game, snake_tex);
+	Snake_BindTexture(game.snake, snake_tex);
 	
 	game.timer->interval =  0.150f;
 	game.timer->rabbit_interval = 0.3f; // 0.15 very hard 0.3 hard 0.600f medium 1.600f easy

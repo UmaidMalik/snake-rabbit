@@ -4,6 +4,7 @@
 #include "snake.h"
 #include "rabbit.h"
 #include "shader_handle.h"
+#include <stddef.h>
 
 Vector2 Game_CalculatePosition(Game* game, int idx)
 {
@@ -29,35 +30,7 @@ void Game_GameLogic(Game* game)
 		game->game_state = MENU;
 		game->timer->interval_scale = 1.0f;
 	}
-	if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
-	{
-		Snake_SetDirection(game, WEST);
-	}
-	if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
-	{
-		Snake_SetDirection(game, EAST);
-	}
-	if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
-	{
-		Snake_SetDirection(game, NORTH);
-	}
-	if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
-	{
-		Snake_SetDirection(game, SOUTH);
-	}
-	if (IsKeyDown(KEY_SPACE))
-	{
-		game->timer->interval_scale = 0.25f;
-	}
-	if (IsKeyReleased(KEY_SPACE))
-	{
-		game->timer->interval_scale = 1.0f;
-	}
-	if (IsKeyPressed(KEY_Q))
-	{
-		game->game_state = MENU;
-		game->timer->interval_scale = 1.0f;
-	}
+	Game_HandleInput(game);
 	// TODO: removed this below  
 	// if (IsKeyPressed(KEY_SPACE))
 	// {
@@ -244,4 +217,46 @@ void DrawShader(Game* game)
 		WHITE
 	);
 	EndShaderMode();
+}
+
+void Game_HandleInput(Game* game)
+{
+	int gamepad_id = 0;
+	for (size_t i = 0; i < 5; i++)
+	{	
+		if (IsGamepadAvailable(i))
+		{
+			gamepad_id = i;
+			break;
+		}
+	}
+	if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_LEFT))
+	{
+		Snake_SetDirection(game, WEST);
+	}
+	if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_RIGHT))
+	{
+		Snake_SetDirection(game, EAST);
+	}
+	if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_UP))
+	{
+		Snake_SetDirection(game, NORTH);
+	}
+	if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_DOWN))
+	{
+		Snake_SetDirection(game, SOUTH);
+	}
+	if (IsKeyDown(KEY_SPACE) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
+	{
+		game->timer->interval_scale = 0.25f;
+	}
+	if (IsKeyReleased(KEY_SPACE) || IsGamepadButtonReleased(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
+	{
+		game->timer->interval_scale = 1.0f;
+	}
+	if (IsKeyPressed(KEY_Q) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_MIDDLE_RIGHT))
+	{
+		game->game_state = MENU;
+		game->timer->interval_scale = 1.0f;
+	}
 }

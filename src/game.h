@@ -43,4 +43,6 @@ void LoadGame(Game* game);
 void DrawBottomUI(Game* game);
 void DrawShader(Game* game);
 
+void Game_HandleInput(Game* game);
+
 #endif

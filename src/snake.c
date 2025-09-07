@@ -5,18 +5,16 @@
 
 void Snake_Init(Game* game)
 {
-    Vector2 v_body[game->window_setting->grid_width * game->window_setting->grid_height];
     Snake* snake = game->snake;
-    snake->body = v_body;
     snake->body[0].x = 10;
     snake->body[0].y = game->window_setting->grid_height / 2;
     snake->length = INIT_SNAKE_SIZE;
     snake->dir = EAST;
 }
 
-void Snake_BindTexture(Game* game, Texture texture)
+void Snake_BindTexture(Snake* snake, Texture texture)
 {
-    game->snake->texture = texture;
+    snake->texture = texture;
 }
 
 void Snake_Move(Game* game)

@@ -14,9 +14,11 @@ typedef struct Rabbit
 } Rabbit;
 
 void Rabbit_Init(Game* game);
-void Rabbit_BindTexture(Game* game, Texture texture);
+void Rabbit_BindTexture(Rabbit* rabbit, Texture texture);
 void Rabbit_Render(Game* game);
 void Rabbit_ResetLocation(Game* game);
 void Rabbit_Move(Game* game);
 
 #endif
+
+// shader_handle.h
