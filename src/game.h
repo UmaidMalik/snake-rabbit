@@ -41,3 +41,13 @@ void DrawBottomUI(Game* game);
 void DrawShader(Game* game);
 
 void Game_HandleInput(Game* game);
+bool Game_InputInteract
+(
+    bool (*IsKeyInteracted)(int),
+    bool (*IsGamepadButtonInteracted)(int, int),
+    const int* keys,
+    int key_count,
+    const int* buttons,
+    int button_count,
+    int gamepad_id
+);

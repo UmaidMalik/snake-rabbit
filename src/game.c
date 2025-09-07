@@ -217,8 +217,26 @@ void DrawShader(Game* game)
 
 void Game_HandleInput(Game* game)
 {
-	int gamepad_id = 0;
-	for (size_t i = 0; i < 5; i++)
+	static const int LEFT_KEYS[] 		= { KEY_A, KEY_LEFT };
+	static const int RIGHT_KEYS[] 		= { KEY_D, KEY_RIGHT };
+	static const int UP_KEYS[] 			= { KEY_W, KEY_UP };
+	static const int DOWN_KEYS[] 		= { KEY_S, KEY_DOWN };
+	static const int LEFT_BUTTONS[]		= { GAMEPAD_BUTTON_LEFT_FACE_LEFT };
+	static const int RIGHT_BUTTONS[]	= { GAMEPAD_BUTTON_LEFT_FACE_RIGHT};
+	static const int UP_BUTTONS[]		= { GAMEPAD_BUTTON_LEFT_FACE_UP};
+	static const int DOWN_BUTTONS[]		= { GAMEPAD_BUTTON_LEFT_FACE_DOWN};
+
+
+	static const int SPEEDUP_KEYS[] 	= { KEY_SPACE };
+	static const int SPEEDUP_BUTTONS[] 	= 
+	{ 
+		GAMEPAD_BUTTON_RIGHT_FACE_DOWN,
+		GAMEPAD_BUTTON_RIGHT_TRIGGER_1,
+		GAMEPAD_BUTTON_RIGHT_TRIGGER_2
+	};
+	bool direction_changed = false;
+	int gamepad_id = -1;
+	for (int i = 0; i < 5; i++)
 	{	
 		if (IsGamepadAvailable(i))
 		{
@@ -226,56 +244,36 @@ void Game_HandleInput(Game* game)
 			break;
 		}
 	}
-	if 
-	(
-		IsKeyPressed(KEY_A)
-		|| IsKeyPressed(KEY_LEFT)
-		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_LEFT)
-	)
+	if (!direction_changed && Game_InputInteract(IsKeyPressed, IsGamepadButtonPressed, LEFT_KEYS, 2, LEFT_BUTTONS, 1, gamepad_id))
 	{
 		Snake_SetDirection(game, WEST);
+		direction_changed = true;
 	}
-	if
-	(
-		IsKeyPressed(KEY_D)
-		|| IsKeyPressed(KEY_RIGHT)
-		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_RIGHT)
-	)
+	if (!direction_changed && Game_InputInteract(IsKeyPressed, IsGamepadButtonPressed, RIGHT_KEYS, 2, RIGHT_BUTTONS, 1, gamepad_id))
 	{
 		Snake_SetDirection(game, EAST);
+		direction_changed = true;
 	}
-	if 
-	(
-		IsKeyPressed(KEY_W)
-		|| IsKeyPressed(KEY_UP)
-		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_UP)
-	)
+	if (!direction_changed && Game_InputInteract(IsKeyPressed, IsGamepadButtonPressed, UP_KEYS, 2, UP_BUTTONS, 1, gamepad_id))
 	{
 		Snake_SetDirection(game, NORTH);
+		direction_changed = true;
 	}
-	if
-	(
-		IsKeyPressed(KEY_S)
-		|| IsKeyPressed(KEY_DOWN)
-		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_DOWN)
-	)
+	if (!direction_changed && Game_InputInteract(IsKeyPressed, IsGamepadButtonPressed, DOWN_KEYS, 2, DOWN_BUTTONS, 1, gamepad_id))
 	{
 		Snake_SetDirection(game, SOUTH);
+		direction_changed = true;
 	}
 	if
 	(
-		IsKeyDown(KEY_SPACE)
-		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
-		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_RIGHT_TRIGGER_1)
-		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_RIGHT_TRIGGER_2)
+		Game_InputInteract(IsKeyDown, IsGamepadButtonDown, SPEEDUP_KEYS, 1, SPEEDUP_BUTTONS, 3, gamepad_id)
 	)
 	{
 		game->timer->interval_scale = 0.25f;
 	}
 	if
 	(
-		IsKeyReleased(KEY_SPACE)
-		|| IsGamepadButtonReleased(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
+		Game_InputInteract(IsKeyReleased, IsGamepadButtonReleased, SPEEDUP_KEYS, 1, SPEEDUP_BUTTONS, 3, gamepad_id)
 	)
 	{
 		game->timer->interval_scale = 1.0f;
@@ -289,4 +287,17 @@ void Game_HandleInput(Game* game)
 		game->game_state = MENU;
 		game->timer->interval_scale = 1.0f;
 	}
+}
+
+bool Game_InputInteract(bool (*IsKeyInteracted)(int), bool (*IsGamepadButtonInteracted)(int, int), const int* keys, int key_count, const int* buttons, int button_count, int gamepad_id)
+{
+	for (int i = 0; i < key_count; i++)
+	{
+		if (IsKeyInteracted(keys[i])) return true;
+	}
+	for (int i = 0; i < button_count; i++)
+	{
+		if (IsGamepadButtonInteracted(gamepad_id, buttons[i])) return true;
+	}
+	return false;
 }
