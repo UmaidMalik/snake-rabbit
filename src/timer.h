@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef TIMER_H
-#define TIMER_H
-
 typedef struct Timer
 {
     float dt;
@@ -15,5 +12,3 @@ typedef struct Timer
 } Timer;
 
 void Timer_Update(Timer* t);
-
-#endif

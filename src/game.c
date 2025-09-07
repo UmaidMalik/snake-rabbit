@@ -30,12 +30,8 @@ void Game_GameLogic(Game* game)
 		game->game_state = MENU;
 		game->timer->interval_scale = 1.0f;
 	}
+
 	Game_HandleInput(game);
-	// TODO: removed this below  
-	// if (IsKeyPressed(KEY_SPACE))
-	// {
-	// 	snake->length += 1;
-	// }
 
 	if (Game_HasSnakeTouchRabbit(game))
 	{
@@ -270,8 +266,8 @@ void Game_HandleInput(Game* game)
 	(
 		IsKeyDown(KEY_SPACE)
 		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
-		|| GAMEPAD_BUTTON_RIGHT_TRIGGER_1
-		|| GAMEPAD_BUTTON_RIGHT_TRIGGER_2
+		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_RIGHT_TRIGGER_1)
+		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_RIGHT_TRIGGER_2)
 	)
 	{
 		game->timer->interval_scale = 0.25f;

@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef WINDOW_SETTING_H
-#define WINDOW_SETTING_H
-
 #include <stdint.h>
 
 typedef struct
@@ -21,8 +18,3 @@ typedef struct
 
 void WindowSetting_Init(WindowSetting* ws);
 void WindowSetting_Setup();
-
-#endif
-/*
-#define GAME_SCORE (game->snake->length - INIT_SNAKE_SIZE)
-*/

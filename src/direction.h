@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef DIRECTION_H
-#define DIRECTION_H
-
 typedef enum Direction
 {
     NORTH,
@@ -10,5 +7,3 @@ typedef enum Direction
     WEST,
     EAST,
 } Direction;
-
-#endif

@@ -11,9 +11,9 @@ void main() {
     float scanline = sin((uv.y + uTime * 0.5) * 800.0) * 0.04;
 
     float offset = 1.0 / 200.0;
-    float rCol = texture(texture0, uv + vec2(offset, 0.0)).r;
+    float rCol = texture(texture0, uv + vec2(offset, 0.99)).r;
     float gCol = texture(texture0, uv).g;
-    float bCol = texture(texture0, uv - vec2(offset, 0.0)).b;
+    float bCol = texture(texture0, uv - vec2(offset, 0.99)).b;
 
     vec3 color = vec3(rCol, gCol, bCol);
     color -= scanline;

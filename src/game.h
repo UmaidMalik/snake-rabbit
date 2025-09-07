@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef GAME_H
-#define GAME_H
-
 #define GAME_SCORE (game->snake->length - INIT_SNAKE_SIZE)
 
 #include "raylib.h"
@@ -44,5 +41,3 @@ void DrawBottomUI(Game* game);
 void DrawShader(Game* game);
 
 void Game_HandleInput(Game* game);
-
-#endif

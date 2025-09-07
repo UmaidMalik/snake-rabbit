@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef RABBIT_H
-#define RABBIT_H
-
 typedef struct Game Game;
 
 #include "raylib.h"
@@ -18,7 +15,3 @@ void Rabbit_BindTexture(Rabbit* rabbit, Texture texture);
 void Rabbit_Render(Game* game);
 void Rabbit_ResetLocation(Game* game);
 void Rabbit_Move(Game* game);
-
-#endif
-
-// shader_handle.h

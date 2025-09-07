@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef SHADER_HANDLE_H
-#define SHADER_HANDLE_H
-
 #include "raylib.h"
 
 typedef struct ShaderHandle
@@ -12,4 +9,3 @@ typedef struct ShaderHandle
 	int time_loc;
 } ShaderHandle;
 
-#endif

@@ -43,8 +43,7 @@ int main ()
 
 	int grid_width = game.window_setting->grid_width;
 	int grid_height = game.window_setting->grid_height;
-	Vector2 v_body[grid_width * grid_height];
-	game.snake->body = v_body;
+	game.snake->body = malloc(sizeof(Vector2) * grid_width * grid_height);
 
 	game.rabbit = &rabbit;
 	game.wabbit = &wabbit;
@@ -114,6 +113,8 @@ void Loop()
 
 void Cleanup()
 {
+	free(game.snake->body);
+	game.snake->body = NULL;
 	UnloadTexture(game.rabbit->texture);
 	UnloadTexture(game.snake->texture);
 	CloseWindow();

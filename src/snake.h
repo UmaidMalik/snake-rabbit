@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef SNAKE_H
-#define SNAKE_H
-
 #include <stdbool.h>
 #include "raylib.h"
 #include "direction.h"
@@ -25,5 +22,3 @@ void Snake_EatsRabbit(Game* game);
 void Snake_Render(Game* game);
 void Snake_BindTexture(Snake* snake, Texture texture);
 void Snake_Init(Game* game);
-
-#endif
