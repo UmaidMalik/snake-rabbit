@@ -230,31 +230,65 @@ void Game_HandleInput(Game* game)
 			break;
 		}
 	}
-	if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_LEFT))
+	if 
+	(
+		IsKeyPressed(KEY_A)
+		|| IsKeyPressed(KEY_LEFT)
+		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_LEFT)
+	)
 	{
 		Snake_SetDirection(game, WEST);
 	}
-	if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_RIGHT))
+	if
+	(
+		IsKeyPressed(KEY_D)
+		|| IsKeyPressed(KEY_RIGHT)
+		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_RIGHT)
+	)
 	{
 		Snake_SetDirection(game, EAST);
 	}
-	if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_UP))
+	if 
+	(
+		IsKeyPressed(KEY_W)
+		|| IsKeyPressed(KEY_UP)
+		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_UP)
+	)
 	{
 		Snake_SetDirection(game, NORTH);
 	}
-	if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_DOWN))
+	if
+	(
+		IsKeyPressed(KEY_S)
+		|| IsKeyPressed(KEY_DOWN)
+		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_LEFT_FACE_DOWN)
+	)
 	{
 		Snake_SetDirection(game, SOUTH);
 	}
-	if (IsKeyDown(KEY_SPACE) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
+	if
+	(
+		IsKeyDown(KEY_SPACE)
+		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
+		|| GAMEPAD_BUTTON_RIGHT_TRIGGER_1
+		|| GAMEPAD_BUTTON_RIGHT_TRIGGER_2
+	)
 	{
 		game->timer->interval_scale = 0.25f;
 	}
-	if (IsKeyReleased(KEY_SPACE) || IsGamepadButtonReleased(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
+	if
+	(
+		IsKeyReleased(KEY_SPACE)
+		|| IsGamepadButtonReleased(gamepad_id, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
+	)
 	{
 		game->timer->interval_scale = 1.0f;
 	}
-	if (IsKeyPressed(KEY_Q) || IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_MIDDLE_RIGHT))
+	if
+	(
+		IsKeyPressed(KEY_Q)
+		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_MIDDLE_RIGHT)
+	)
 	{
 		game->game_state = MENU;
 		game->timer->interval_scale = 1.0f;
