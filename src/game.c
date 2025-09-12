@@ -86,7 +86,7 @@ void Game_MenuLogic(Game* game)
 void Game_MenuRender(Game* game)
 {
 	ClearBackground(SKYBLUE);
-	DrawText("SNAKE", 32, 32, 128, DARKBLUE);
+	DrawText("SNAKE & RABBIT", 32, 96, 64, DARKBLUE);
 	DrawText("PLAY", 32 + 8, 176, 64, DARKBLUE);
 	DrawTexture(game->wabbit->texture, 256, 196, WHITE);
 }
@@ -243,8 +243,7 @@ void Game_HandleInput(Game* game)
 			gamepad_id = i;
 			break;
 		}
-	}	
-	TraceLog(LOG_INFO, "raylib version: %s", RAYLIB_VERSION);
+	}
 
 	if (!direction_changed && Game_InputInteract(IsKeyPressed, IsGamepadButtonPressed, LEFT_KEYS, 2, LEFT_BUTTONS, 1, gamepad_id))
 	{
