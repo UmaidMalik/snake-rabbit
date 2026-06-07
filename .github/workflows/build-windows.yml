@@ -12,84 +12,84 @@ permissions:
   contents: read
 
 jobs:
-windows:
-  name: Windows x86_64
-  runs-on: windows-latest
+  windows:
+    name: Windows x86_64
+    runs-on: windows-latest
 
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
-    - name: Generate Visual Studio solution
-      shell: cmd
-      run: build-VisualStudio2022.bat
+      - name: Generate Visual Studio solution
+        shell: cmd
+        run: build-VisualStudio2022.bat
 
-    - name: Find generated solution
-      id: solution
-      shell: pwsh
-      run: |
-        $solution = Get-ChildItem -Path . -Recurse -Filter *.sln |
-          Select-Object -First 1
+      - name: Find generated solution
+        id: solution
+        shell: pwsh
+        run: |
+          $solution = Get-ChildItem -Path . -Recurse -Filter *.sln |
+            Select-Object -First 1
 
-        if (-not $solution) {
-          throw "No generated Visual Studio solution was found."
-        }
-
-        Write-Host "Solution: $($solution.FullName)"
-        "path=$($solution.FullName)" >> $env:GITHUB_OUTPUT
-
-    - name: Build Release
-      shell: pwsh
-      run: |
-        msbuild "${{ steps.solution.outputs.path }}" `
-          /m `
-          /p:Configuration=Release `
-          /p:Platform=x64
-
-    - name: Inspect output
-      shell: pwsh
-      run: |
-        Get-ChildItem -Path bin -Recurse -File |
-          Select-Object FullName
-
-    - name: Package Windows build
-      shell: pwsh
-      run: |
-        $destination = "dist/raylib-quickstart-windows-x86_64"
-
-        New-Item -ItemType Directory -Force -Path $destination
-
-        $executable = Get-ChildItem `
-          -Path bin `
-          -Recurse `
-          -Filter raylib-quickstart.exe |
-          Select-Object -First 1
-
-        if (-not $executable) {
-          throw "Windows executable not found."
-        }
-
-        Copy-Item `
-          $executable.FullName `
-          "$destination/raylib-quickstart.exe"
-
-        Copy-Item resources "$destination/resources" -Recurse
-        Copy-Item README.md $destination
-        Copy-Item GAME_MANUAL.md $destination
-
-        Get-ChildItem -Path bin -Recurse -Filter *.dll |
-          ForEach-Object {
-            Copy-Item $_.FullName $destination
+          if (-not $solution) {
+            throw "No generated Visual Studio solution was found."
           }
 
-    - name: Upload Windows artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: raylib-quickstart-windows-x86_64
-        path: dist/raylib-quickstart-windows-x86_64
-        if-no-files-found: error
+          Write-Host "Solution: $($solution.FullName)"
+          "path=$($solution.FullName)" >> $env:GITHUB_OUTPUT
+
+      - name: Build Release
+        shell: pwsh
+        run: |
+          msbuild "${{ steps.solution.outputs.path }}" `
+            /m `
+            /p:Configuration=Release `
+            /p:Platform=x64
+
+      - name: Inspect output
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path bin -Recurse -File |
+            Select-Object FullName
+
+      - name: Package Windows build
+        shell: pwsh
+        run: |
+          $destination = "dist/raylib-quickstart-windows-x86_64"
+
+          New-Item -ItemType Directory -Force -Path $destination
+
+          $executable = Get-ChildItem `
+            -Path bin `
+            -Recurse `
+            -Filter raylib-quickstart.exe |
+            Select-Object -First 1
+
+          if (-not $executable) {
+            throw "Windows executable not found."
+          }
+
+          Copy-Item `
+            $executable.FullName `
+            "$destination/raylib-quickstart.exe"
+
+          Copy-Item resources "$destination/resources" -Recurse
+          Copy-Item README.md $destination
+          Copy-Item GAME_MANUAL.md $destination
+
+          Get-ChildItem -Path bin -Recurse -Filter *.dll |
+            ForEach-Object {
+              Copy-Item $_.FullName $destination
+            }
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: raylib-quickstart-windows-x86_64
+          path: dist/raylib-quickstart-windows-x86_64
+          if-no-files-found: error
