@@ -56,6 +56,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
       - name: Generate Visual Studio solution
         shell: cmd
         run: build-VisualStudio2022.bat
