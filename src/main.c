@@ -58,6 +58,7 @@ static void Setup()
 	game.rabbit = &rabbit;
 	game.wabbit = &wabbit;
 	game.shader_handle = &shader_handle;
+	game.is_paused = false;
 
 	WindowSetting_Init(game.window_setting);
 

@@ -13,23 +13,22 @@ A simple Snake game with a wild rabbit. Made with [raylib](https://www.raylib.co
 ---
 
 ## ⌨️ Controls
-| Key               | Action              |
-|-------------------|---------------------|
-| Arrow Keys / WASD | Move the snake      |
-| Spacebar          | Speed boost         |
-| **P**             | Pause / Resume      |
-| **R**             | Restart             |
-| **ESC**           | Quit                |
+
+| Key               | Action                   |
+| ----------------- | ------------------------ |
+| Arrow Keys / WASD | Move the snake           |
+| Spacebar          | Speed boost              |
+| **P**             | Pause or resume          |
+| **R**             | Restart the current game |
+| **M**             | Return to main menu      |
+| **Esc**       | Quit game (linux/windows), return to main menu (web) |
 
 ---
 
 ## 🏆 Scoring
-- +1 point for each rabbit eaten.
-- The snake grows with every bite.
-- Survive as long as possible to maximize your score!
+
+* Earn 1 point for each rabbit eaten.
+* The snake grows after every rabbit.
+* Survive as long as possible to achieve a new high score.
 
 ---
-
-## ⚙️ How to run
-1. 
-2. 

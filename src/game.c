@@ -25,7 +25,32 @@ int Game_CalculateIndex(Game* game, Vector2* p)
 
 void Game_GameLogic(Game* game)
 {
+	if (IsKeyPressed(KEY_P))
+	{
+		game->is_paused = !game->is_paused;
+	}
+
+	if (IsKeyPressed(KEY_R))
+	{
+		Game_Restart(game);
+		return;
+	}
+
+	if (IsKeyPressed(KEY_M) || IsKeyPressed(KEY_ESCAPE))
+	{
+		game->game_state = MENU;
+		game->timer->interval_scale = 1.0f;
+		game->is_paused = false;
+		return;
+	}
+
+	if (game->is_paused)
+	{
+		return;
+	}
+
 	Timer_Update(game->timer);
+
 	if (Snake_HasCollided(game))
 	{
 		Snake_Init(game);
@@ -70,6 +95,18 @@ void Game_GameRender(Game* game)
 	ClearBackground(SKYBLUE);
 	Snake_Render(game);
 	Rabbit_Render(game);
+}
+
+void Game_Restart(Game* game)
+{
+	Snake_Init(game);
+	Rabbit_ResetLocation(game);
+
+	game->timer->time_accumulated = 0.0f;
+	game->timer->rabbit_move_time_accum = 0.0f;
+	game->timer->interval_scale = 1.0f;
+
+	game->is_paused = false;
 }
 
 void Game_MenuLogic(Game* game)
@@ -149,6 +186,7 @@ void LoadGame(Game* game)
 	BeginDrawing();
 	DrawShader(game);
 	DrawBottomUI(game);
+	DrawPauseOverlay(game);
 	EndDrawing();
 }
 
@@ -199,6 +237,34 @@ void DrawBottomUI(Game* game)
 		18,
 		WHITE
 	);
+}
+
+void DrawPauseOverlay(Game* game)
+{
+	if (game->is_paused)
+	{
+		DrawRectangle
+		(
+			0,
+			0,
+			game->window_setting->screen_width,
+			game->window_setting->screen_height,
+			Fade(BLACK, 0.55f)
+		);
+
+		const char* text = "PAUSED";
+		const int font_size = 48;
+		const int text_width = MeasureText(text, font_size);
+
+		DrawText
+		(
+			text,
+			(game->window_setting->screen_width - text_width) / 2,
+			(game->window_setting->screen_height - font_size) / 2,
+			font_size,
+			WHITE
+		);
+	}
 }
 
 void DrawShader(Game* game)
@@ -285,15 +351,6 @@ void Game_HandleInput(Game* game)
 		Game_InputInteract(IsKeyReleased, IsGamepadButtonReleased, SPEEDUP_KEYS, 1, SPEEDUP_BUTTONS, 3, gamepad_id)
 	)
 	{
-		game->timer->interval_scale = 1.0f;
-	}
-	if
-	(
-		IsKeyPressed(KEY_Q)
-		|| IsGamepadButtonPressed(gamepad_id, GAMEPAD_BUTTON_MIDDLE_RIGHT)
-	)
-	{
-		game->game_state = MENU;
 		game->timer->interval_scale = 1.0f;
 	}
 }

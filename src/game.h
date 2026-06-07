@@ -22,6 +22,7 @@ typedef struct Game
 	Timer* timer;
 	ShaderHandle* shader_handle;
     WindowSetting* window_setting;
+    bool is_paused;
 } Game;
 
 Vector2 Game_CalculatePosition(Game* game, int idx);
@@ -29,6 +30,7 @@ int Game_CalculateIndex(Game* game, Vector2* p);
 
 void Game_GameLogic(Game* game);
 void Game_GameRender(Game* game);
+void Game_Restart(Game* game);
 void Game_MenuLogic(Game* game);
 void Game_MenuRender(Game* game);
 
@@ -38,6 +40,7 @@ void LoadMenu(Game* game);
 void LoadGame(Game* game);
 
 void DrawBottomUI(Game* game);
+void DrawPauseOverlay(Game* game);
 void DrawShader(Game* game);
 
 void Game_HandleInput(Game* game);
