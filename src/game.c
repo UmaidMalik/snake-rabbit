@@ -6,6 +6,8 @@
 #include "shader_handle.h"
 #include <stddef.h>
 
+static int high_score = 0;
+
 Vector2 Game_CalculatePosition(Game* game, int idx)
 {
 	int px = idx % game->window_setting->grid_width;
@@ -182,7 +184,11 @@ void DrawBottomUI(Game* game)
 	);
 
 	// high score render
-	GameBuffer_UpdateHighScore(game->buffers, 0);
+	if (GAME_SCORE > high_score)
+	{
+		high_score = GAME_SCORE;
+	}
+	GameBuffer_UpdateHighScore(game->buffers, high_score);
 	DrawText
 	(
 		game->buffers->high_score,
