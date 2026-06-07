@@ -1,0 +1,178 @@
+name: Native Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libasound2-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libxcursor-dev \
+            libxinerama-dev
+
+      - name: Generate Makefiles
+        run: |
+          chmod +x build/premake5
+          cd build
+          ./premake5 gmake
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Package Linux
+        run: |
+          package="snake-rabbit-${GITHUB_REF_NAME}-linux-x86_64"
+
+          mkdir -p "release/$package"
+
+          executable="$(find bin -type f -executable \
+            ! -name '*.so' \
+            | head -n 1)"
+
+          if [ -z "$executable" ]; then
+            echo "Linux executable not found"
+            exit 1
+          fi
+
+          cp "$executable" "release/$package/snake-rabbit"
+          cp -r resources "release/$package/resources"
+
+          [ -f README.md ] && cp README.md "release/$package/"
+          [ -f GAME_MANUAL.md ] && cp GAME_MANUAL.md "release/$package/"
+          [ -f LICENSE ] && cp LICENSE "release/$package/"
+
+          cd release
+          tar -czf "$package.tar.gz" "$package"
+
+      - name: Upload Linux package
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: release/*.tar.gz
+
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Generate Visual Studio solution
+        shell: cmd
+        run: build-VisualStudio2022.bat
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $solution = Get-ChildItem -Recurse -Filter *.sln |
+            Select-Object -First 1
+
+          if (-not $solution) {
+            throw "No solution generated."
+          }
+
+          msbuild $solution.FullName `
+            /m `
+            /p:Configuration=Release `
+            /p:Platform=x64
+
+      - name: Package Windows
+        shell: pwsh
+        run: |
+          $package = "snake-rabbit-${{ github.ref_name }}-windows-x86_64"
+          $directory = "release/$package"
+
+          New-Item -ItemType Directory -Force -Path $directory
+
+          $executable = Get-ChildItem -Path bin -Recurse -Filter *.exe |
+            Select-Object -First 1
+
+          if (-not $executable) {
+            throw "Windows executable not found."
+          }
+
+          Copy-Item $executable.FullName "$directory/snake-rabbit.exe"
+          Copy-Item resources "$directory/resources" -Recurse
+
+          if (Test-Path README.md) {
+            Copy-Item README.md $directory
+          }
+
+          if (Test-Path GAME_MANUAL.md) {
+            Copy-Item GAME_MANUAL.md $directory
+          }
+
+          if (Test-Path LICENSE) {
+            Copy-Item LICENSE $directory
+          }
+
+          Get-ChildItem -Path bin -Recurse -Filter *.dll |
+            ForEach-Object {
+              Copy-Item $_.FullName $directory
+            }
+
+          Compress-Archive `
+            -Path $directory `
+            -DestinationPath "release/$package.zip"
+
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: release/*.zip
+
+  publish:
+    needs:
+      - linux
+      - windows
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Linux package
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-release
+          path: release-assets
+
+      - name: Download Windows package
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-release
+          path: release-assets
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            release-assets/* \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes
