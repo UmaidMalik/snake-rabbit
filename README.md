@@ -27,9 +27,6 @@ The WebAssembly version runs directly in the browser through GitHub Pages:
 * CRT-inspired post-processing shader
 * Native Linux and Windows builds
 * WebAssembly browser build
-* Automated CI/CD through GitHub Actions
-* GitHub Releases for downloadable builds
-* Automatic GitHub Pages deployment
 
 ## Controls
 
