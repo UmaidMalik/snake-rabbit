@@ -1,4 +1,4 @@
-name: Native Release
+name: Release
 
 on:
   push:
@@ -10,13 +10,12 @@ permissions:
 
 jobs:
   linux:
+    name: Build Linux release
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install dependencies
         run: |
@@ -38,13 +37,12 @@ jobs:
           cd build
           ./premake5 gmake
 
-      - name: Build
-        run: make -j"$(nproc)"
+      - name: Build Release
+        run: make config=release_x64 -j"$(nproc)"
 
-      - name: Package Linux
+      - name: Package Linux build
         run: |
           package="snake-rabbit-${GITHUB_REF_NAME}-linux-x86_64"
-
           mkdir -p "release/$package"
 
           executable="$(find bin -type f -executable \
@@ -53,6 +51,7 @@ jobs:
 
           if [ -z "$executable" ]; then
             echo "Linux executable not found"
+            find bin -type f -print
             exit 1
           fi
 
@@ -71,15 +70,15 @@ jobs:
         with:
           name: linux-release
           path: release/*.tar.gz
+          if-no-files-found: error
 
   windows:
+    name: Build Windows release
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -88,14 +87,14 @@ jobs:
         shell: cmd
         run: build-VisualStudio2022.bat
 
-      - name: Build
+      - name: Build Release
         shell: pwsh
         run: |
           $solution = Get-ChildItem -Recurse -Filter *.sln |
             Select-Object -First 1
 
           if (-not $solution) {
-            throw "No solution generated."
+            throw "No Visual Studio solution found."
           }
 
           msbuild $solution.FullName `
@@ -103,7 +102,7 @@ jobs:
             /p:Configuration=Release `
             /p:Platform=x64
 
-      - name: Package Windows
+      - name: Package Windows build
         shell: pwsh
         run: |
           $package = "snake-rabbit-${{ github.ref_name }}-windows-x86_64"
@@ -115,6 +114,7 @@ jobs:
             Select-Object -First 1
 
           if (-not $executable) {
+            Get-ChildItem -Path bin -Recurse -File
             throw "Windows executable not found."
           }
 
@@ -147,11 +147,60 @@ jobs:
         with:
           name: windows-release
           path: release/*.zip
+          if-no-files-found: error
+
+  web:
+    name: Build WebAssembly release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+          actions-cache-folder: emsdk-cache
+
+      - name: Download raylib
+        run: |
+          git clone \
+            --depth 1 \
+            https://github.com/raysan5/raylib.git \
+            build/external/raylib-master
+
+      - name: Build WebAssembly
+        run: |
+          chmod +x build-web.sh
+          ./build-web.sh
+
+      - name: Package WebAssembly build
+        run: |
+          package="snake-rabbit-${GITHUB_REF_NAME}-web"
+
+          mkdir -p "release/$package"
+          cp -r bin/Web/. "release/$package/"
+
+          [ -f README.md ] && cp README.md "release/$package/"
+          [ -f LICENSE ] && cp LICENSE "release/$package/"
+
+          cd release
+          zip -r "$package.zip" "$package"
+
+      - name: Upload WebAssembly package
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-release
+          path: release/*.zip
+          if-no-files-found: error
 
   publish:
+    name: Publish GitHub release
     needs:
       - linux
       - windows
+      - web
 
     runs-on: ubuntu-latest
 
@@ -168,11 +217,20 @@ jobs:
           name: windows-release
           path: release-assets
 
+      - name: Download WebAssembly package
+        uses: actions/download-artifact@v4
+        with:
+          name: web-release
+          path: release-assets
+
+      - name: Inspect release assets
+        run: find release-assets -type f -print
+
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${GITHUB_REF_NAME}" \
             release-assets/* \
-            --title "${GITHUB_REF_NAME}" \
+            --title "Snake & Rabbit ${GITHUB_REF_NAME}" \
             --generate-notes
