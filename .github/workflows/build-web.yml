@@ -1,0 +1,60 @@
+name: Build WebAssembly
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: WebAssembly
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+          actions-cache-folder: emsdk-cache
+
+      - name: Verify Emscripten
+        run: |
+          which emcc
+          emcc --version
+
+      - name: Download raylib source
+        run: |
+          git clone \
+            --depth 1 \
+            https://github.com/raysan5/raylib.git \
+            build/external/raylib-master
+
+      - name: Build WebAssembly
+        run: |
+          chmod +x build-web.sh
+          ./build-web.sh
+
+      - name: Verify output
+        run: |
+          test -f bin/Web/index.html
+          test -f bin/Web/index.js
+          test -f bin/Web/index.wasm
+          test -f bin/Web/index.data
+
+          find bin/Web -maxdepth 1 -type f -print
+
+      - name: Upload WebAssembly artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snake-rabbit-web
+          path: bin/Web
+          if-no-files-found: error

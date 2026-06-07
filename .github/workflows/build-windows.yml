@@ -60,7 +60,7 @@ jobs:
       - name: Package Windows build
         shell: pwsh
         run: |
-          $destination = "dist/raylib-quickstart-windows-x86_64"
+          $destination = "dist/snake-rabbit-windows-x86_64"
 
           New-Item -ItemType Directory -Force -Path $destination
 
@@ -73,7 +73,7 @@ jobs:
 
           Copy-Item `
             $executable.FullName `
-            "$destination/raylib-quickstart.exe"
+            "$destination/snake-rabbit.exe"
 
           Copy-Item resources "$destination/resources" -Recurse
           Copy-Item README.md $destination
@@ -87,6 +87,6 @@ jobs:
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
-          name: raylib-quickstart-windows-x86_64
-          path: dist/raylib-quickstart-windows-x86_64
+          name: snake-rabbit-windows-x86_64
+          path: dist/snake-rabbit-windows-x86_64
           if-no-files-found: error

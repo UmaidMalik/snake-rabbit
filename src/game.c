@@ -108,6 +108,7 @@ bool Game_HasSnakeTouchRabbit(Game* game)
 
 void LoadMenu(Game* game)
 {
+#if !defined(PLATFORM_WEB)
 	float time = GetTime();
 	SetShaderValue
 	(
@@ -116,6 +117,7 @@ void LoadMenu(Game* game)
 		&time,
 		SHADER_UNIFORM_FLOAT
 	);
+#endif
 
 	Game_MenuLogic(game);
 	BeginTextureMode(game->shader_handle->target);

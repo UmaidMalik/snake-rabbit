@@ -51,7 +51,7 @@ jobs:
 
       - name: Package Linux build
         run: |
-          mkdir -p dist/raylib-quickstart-linux-x86_64
+          mkdir -p dist/snake-rabbit-linux-x86_64
 
           executable="$(find bin -type f -executable \
             ! -name '*.so' \
@@ -64,17 +64,17 @@ jobs:
           fi
 
           cp "$executable" \
-            dist/raylib-quickstart-linux-x86_64/raylib-quickstart
+            dist/snake-rabbit-linux-x86_64/snake-rabbit
 
           cp -r resources \
-            dist/raylib-quickstart-linux-x86_64/resources
+            dist/snake-rabbit-linux-x86_64/resources
 
-          cp README.md dist/raylib-quickstart-linux-x86_64/
-          cp GAME_MANUAL.md dist/raylib-quickstart-linux-x86_64/
+          cp README.md dist/snake-rabbit-linux-x86_64/
+          cp GAME_MANUAL.md dist/snake-rabbit-linux-x86_64/
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
-          name: raylib-quickstart-linux-x86_64
-          path: dist/raylib-quickstart-linux-x86_64
+          name: snake-rabbit-linux-x86_64
+          path: dist/snake-rabbit-linux-x86_64
           if-no-files-found: error

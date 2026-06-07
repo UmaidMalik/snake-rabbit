@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <meta
+        name="description"
+        content="Snake & Rabbit, a C raylib game compiled to WebAssembly."
+    >
+
+    <title>Snake & Rabbit</title>
+
+    <style>
+        :root {
+            color-scheme: dark;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #111318;
+            color: #f3f4f6;
+        }
+
+        main {
+            width: min(1100px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 32px 0 56px;
+        }
+
+        header {
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+        }
+
+        p {
+            color: #c7cbd4;
+            line-height: 1.6;
+        }
+
+        .technology {
+            margin: 0;
+            color: #9ca3af;
+        }
+
+        .game-container {
+            display: flex;
+            justify-content: center;
+            width: min(100%, 672px);
+            padding: 16px;
+            background: #08090c;
+            border: 1px solid #2b2f38;
+            border-radius: 12px;
+            overflow: auto;
+            margin: 0 auto;
+        }
+
+        canvas {
+            display: block;
+            width: 640px !important;
+            height: 512px !important;
+            max-width: 100%;
+            aspect-ratio: 5 / 4;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .status {
+            min-height: 24px;
+            margin: 12px 0 0;
+            text-align: center;
+            color: #aeb4c0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        section {
+            padding: 20px;
+            background: #1a1d24;
+            border: 1px solid #2b2f38;
+            border-radius: 12px;
+        }
+
+        ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+            color: #d7dae0;
+            line-height: 1.8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #30343d;
+            text-align: left;
+        }
+
+        th {
+            color: #ffffff;
+        }
+
+        td {
+            color: #d7dae0;
+        }
+
+        footer {
+            margin-top: 28px;
+            text-align: center;
+            color: #888f9d;
+        }
+
+        code {
+            padding: 2px 6px;
+            background: #292d36;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <header>
+            <h1>Snake & Rabbit</h1>
+
+            <p>
+                A classic snake game with a wild rabbit that moves around
+                the board when you get close.
+            </p>
+
+            <p class="technology">
+                Written in C using raylib and compiled for the browser
+                with WebAssembly.
+            </p>
+        </header>
+
+        <div class="game-container">
+            <canvas
+                id="canvas"
+                width="640"
+                height="512"
+                tabindex="-1"
+                oncontextmenu="event.preventDefault()"
+            ></canvas>
+        </div>
+
+        <p id="status" class="status">
+            Loading WebAssembly game...
+        </p>
+
+        <div class="info-grid">
+            <section>
+                <h2>How to Play</h2>
+
+                <ul>
+                    <li>Use the Arrow Keys or WASD to move.</li>
+                    <li>Use Spacebar for a speed boost.</li>
+                    <li>Eat the rabbit to grow and earn points.</li>
+                    <li>You can pass through walls, but not your own body.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Controls</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>Arrow Keys / WASD</td>
+                            <td>Move the snake</td>
+                        </tr>
+
+                        <tr>
+                            <td>Spacebar</td>
+                            <td>Speed boost</td>
+                        </tr>
+
+                        <tr>
+                            <td>P</td>
+                            <td>Pause or resume</td>
+                        </tr>
+
+                        <tr>
+                            <td>R</td>
+                            <td>Restart</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>Scoring</h2>
+
+                <ul>
+                    <li>Earn 1 point for every rabbit eaten.</li>
+                    <li>The snake grows after each rabbit.</li>
+                    <li>Survive as long as possible.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Technology</h2>
+
+                <ul>
+                    <li>Game logic written in C</li>
+                    <li>Rendering and input powered by raylib</li>
+                    <li>Compiled to WebAssembly with Emscripten</li>
+                    <li>Runs directly in the browser</li>
+                </ul>
+            </section>
+        </div>
+
+        <footer>
+            Snake & Rabbit — C, raylib, and WebAssembly
+        </footer>
+    </main>
+
+    <script>
+        const statusElement = document.getElementById("status");
+
+        var Module = {
+            canvas: document.getElementById("canvas"),
+
+            setStatus(text) {
+                statusElement.textContent = text;
+            },
+
+            onRuntimeInitialized() {
+                const canvas = document.getElementById("canvas");
+
+                canvas.width = 640;
+                canvas.height = 512;
+
+                canvas.style.width = "640px";
+                canvas.style.height = "512px";
+
+                statusElement.textContent = "Game loaded.";
+            },
+
+            print(text) {
+                console.log(text);
+            },
+
+            printErr(text) {
+                console.error(text);
+            }
+        };
+
+        window.addEventListener("keydown", function (event) {
+            const blockedKeys = [
+                "ArrowUp",
+                "ArrowDown",
+                "ArrowLeft",
+                "ArrowRight",
+                " "
+            ];
+
+            if (blockedKeys.includes(event.key)) {
+                event.preventDefault();
+            }
+        });
+    </script>
+
+    {{{ SCRIPT }}}
+</body>
+</html>
