@@ -1,0 +1,82 @@
+name: Native Builds
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libasound2-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libxcursor-dev \
+            libxinerama-dev
+
+      - name: Generate Makefiles
+        run: |
+          chmod +x build/premake5
+          cd build
+          ./premake5 gmake
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Show output
+        run: find bin -type f -print
+
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Generate Visual Studio solution
+        shell: cmd
+        run: build-VisualStudio2022.bat
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $solution = Get-ChildItem -Recurse -Filter *.sln |
+            Select-Object -First 1
+
+          if (-not $solution) {
+            throw "No solution generated."
+          }
+
+          msbuild $solution.FullName `
+            /m `
+            /p:Configuration=Release `
+            /p:Platform=x64
+
+      - name: Show output
+        shell: pwsh
+        run: |
+          Get-ChildItem bin -Recurse -File |
+            Select-Object FullName

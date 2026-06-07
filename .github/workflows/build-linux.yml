@@ -1,0 +1,66 @@
+linux:
+  name: Linux x86_64
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          libasound2-dev \
+          libx11-dev \
+          libxrandr-dev \
+          libxi-dev \
+          libgl1-mesa-dev \
+          libglu1-mesa-dev \
+          libxcursor-dev \
+          libxinerama-dev
+
+    - name: Generate GNU Make project
+      run: |
+        chmod +x build/premake5
+        cd build
+        ./premake5 gmake
+        cd ..
+
+    - name: Build
+      run: make -j"$(nproc)"
+
+    - name: Inspect build output
+      run: find bin -maxdepth 4 -type f -print
+
+    - name: Package Linux build
+      run: |
+        mkdir -p dist/raylib-quickstart-linux-x86_64
+
+        executable="$(find bin -type f -executable \
+          ! -name '*.so' \
+          ! -name '*.dll' \
+          | head -n 1)"
+
+        if [ -z "$executable" ]; then
+          echo "Linux executable not found"
+          exit 1
+        fi
+
+        cp "$executable" \
+          dist/raylib-quickstart-linux-x86_64/raylib-quickstart
+
+        cp -r resources \
+          dist/raylib-quickstart-linux-x86_64/resources
+
+        cp README.md dist/raylib-quickstart-linux-x86_64/
+        cp GAME_MANUAL.md dist/raylib-quickstart-linux-x86_64/
+
+    - name: Upload Linux artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: raylib-quickstart-linux-x86_64
+        path: dist/raylib-quickstart-linux-x86_64
+        if-no-files-found: error
