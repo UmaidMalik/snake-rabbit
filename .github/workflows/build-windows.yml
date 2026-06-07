@@ -1,3 +1,17 @@
+name: Build Windows
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
 windows:
   name: Windows x86_64
   runs-on: windows-latest
@@ -7,6 +21,9 @@ windows:
       uses: actions/checkout@v4
       with:
         submodules: recursive
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
 
     - name: Generate Visual Studio solution
       shell: cmd
