@@ -64,10 +64,7 @@ jobs:
 
           New-Item -ItemType Directory -Force -Path $destination
 
-          $executable = Get-ChildItem `
-            -Path bin `
-            -Recurse `
-            -Filter raylib-quickstart.exe |
+          $executable = Get-ChildItem -Path bin -Recurse -Filter *.exe |
             Select-Object -First 1
 
           if (-not $executable) {
